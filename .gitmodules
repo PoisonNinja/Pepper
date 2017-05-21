@@ -1,0 +1,3 @@
+[submodule "mint"]
+	path = mint
+	url = https://github.com/PoisonNinja/mint.git
