@@ -11,7 +11,7 @@ fi
 
 shopt -s globstar
 
-pushd $DIR/../strawberry > /dev/null
+pushd $DIR/../mint > /dev/null
 
 for f in **/*.h; do
     if [[ $f == *"scripts/"* ]] || [[ $f == *"include/config"* ]] || [[ $f == *"include/generated"* || $f == *"include/arch"* ]]; then
