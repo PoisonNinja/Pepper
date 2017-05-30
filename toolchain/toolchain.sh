@@ -2,19 +2,14 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-GCCVER="gcc-7.1.0"
-BINUTILSVER="binutils-2.28"
-GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.bz2"
-BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.bz2"
-
 PREFIX="$DIR/local"
-TARGET=x86_64-elf
 PATH="$PREFIX/bin:$PATH"
 
-TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
+TARGET="x86_64-pc-none-elf"
+ARCH="x86_64"
+TARGETS_TO_BUILD="X86"
 
-BUILD_BINUTILS=true
-BUILD_GCC=true
+TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
 # Useful functions
 function cleanup() {
@@ -128,7 +123,7 @@ then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
             brew tap homebrew/versions
-            brew install gcc mpfr gmp libmpc nasm genext2fs qemu xorriso clang-format cproto
+            brew install gmp nasm genext2fs qemu xorriso cproto
             brew install grep --with-default-names
             brew install findutils --with-default-names
             brew install automake@1.12
@@ -142,11 +137,6 @@ then
             then
                 ln -s /usr/local/bin/automake112 /usr/local/bin/automake
             fi
-            # Update this as needed depending on what version ships with
-            # Homebrew
-            export CC=gcc-7
-            export CXX=g++-7
-            export CPP=cpp-7
         else
             error
             echo "Your OS is currently not supported."
@@ -171,31 +161,19 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-if [[ $BUILD_BINUTILS == true ]]
-then
-    download $BINUTILSURL binutils.tar.bz2 || bail
-    extract binutils.tar.bz2 || bail
-    mkdir build-binutils
-    pushd build-binutils > /dev/null
-    ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-werror || bail
-    make || bail
-    make install || bail
-    popd > /dev/null
-fi
-
-if [[ $BUILD_GCC == true ]]
-then
-    download $GCCURL gcc.tar.bz2 || bail
-    extract gcc.tar.bz2 || bail
-    mkdir build-gcc
-    pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers || bail
-    make all-gcc || bail
-    make all-target-libgcc || bail
-    make install-gcc || bail
-    make install-target-libgcc || bail
-    popd > /dev/null
-fi
+git clone https://github.com/llvm-mirror/llvm.git --depth=1
+pushd llvm > /dev/null # $TMPDIR/llvm
+pushd tools > /dev/null # $TMPDIR/llvm/tools
+git clone https://github.com/llvm-mirror/clang.git --depth=1
+git clone https://github.com/llvm-mirror/lld.git --depth=1
+popd > /dev/null # $TMPDIR/llvm
+mkdir build
+pushd build > /dev/null # $TMPDIR/llvm/build
+cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD"
+make -j4
+make install
+popd > /dev/null # TMPDIR/llvm
+popd > /dev/null # $TMPDIR
 
 popd > /dev/null
 echo
