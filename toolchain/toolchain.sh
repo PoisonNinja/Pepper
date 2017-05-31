@@ -94,7 +94,7 @@ then
         then
             . /etc/lsb-release
             sudo apt update
-            sudo apt -fy install build-essential libmpfr-dev libmpc-dev libgmp3-dev nasm genext2fs texinfo qemu grub-common libncurses5-dev xorriso clang-format cproto
+            sudo apt -fy install build-essential nasm genext2fs texinfo qemu grub-common libncurses5-dev xorriso clang-format cproto cmake ninja-build
             # Only Ubuntu Precise ships with Automake 1.11
             if [[ "$DISTRIB_CODENAME" != "precise " ]]
             then
@@ -123,7 +123,7 @@ then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
             brew tap homebrew/versions
-            brew install gmp nasm genext2fs qemu xorriso cproto
+            brew install gmp nasm genext2fs qemu xorriso cproto cmake ninja
             brew install grep --with-default-names
             brew install findutils --with-default-names
             brew install automake@1.12
@@ -161,20 +161,19 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-git clone https://github.com/llvm-mirror/llvm.git --depth=1
+git clone https://github.com/PoisonNinja/llvm.git --depth=1
 pushd llvm > /dev/null # $TMPDIR/llvm
 pushd tools > /dev/null # $TMPDIR/llvm/tools
-git clone https://github.com/llvm-mirror/clang.git --depth=1
-git clone https://github.com/llvm-mirror/lld.git --depth=1
+git clone https://github.com/PoisonNinja/clang.git --depth=1
+git clone https://github.com/PoisonNinja/lld.git --depth=1
 popd > /dev/null # $TMPDIR/llvm
 mkdir build
 pushd build > /dev/null # $TMPDIR/llvm/build
-cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD"
-make -j4
-make install
+cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD" -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+cmake --build . --target install
 popd > /dev/null # TMPDIR/llvm
 popd > /dev/null # $TMPDIR
-
 popd > /dev/null
 echo
 echo "The toolchain has been installed successfully"
