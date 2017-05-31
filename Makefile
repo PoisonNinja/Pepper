@@ -18,7 +18,7 @@ bootable.iso: hdd/boot/mint.kernel
 
 clean:
 	$(RM) bootable.iso hdd.img hdd/boot/mint.kernel
-	@$(MAKE) -C mint/build clean
+	@cmake --build mint/build --target clean
 
 hdd.img: $(HDD)
 	@echo
@@ -44,7 +44,7 @@ qemu: bootable.iso hdd.img
 
 # Internal targets
 hdd/boot/mint.kernel: FORCE
-	@$(MAKE) -C mint/build install
+	@cmake --build mint/build --target install
 
 FORCE:
 
@@ -53,4 +53,4 @@ FORCE:
 .DEFAULT:
 	@echo "Sorbet does not recognize this target. Passing to Mint..."
 	@echo
-	@$(MAKE) -C mint $(MAKECMDGOALS)
+	@cmake --build mint/build --target $(MAKECMDGOALS)
