@@ -161,11 +161,11 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-git clone https://github.com/PoisonNinja/llvm.git --depth=1
+git clone https://github.com/llvm-mirror/llvm.git --depth=1
 pushd llvm > /dev/null # $TMPDIR/llvm
 pushd tools > /dev/null # $TMPDIR/llvm/tools
-git clone https://github.com/PoisonNinja/clang.git --depth=1
-git clone https://github.com/PoisonNinja/lld.git --depth=1
+git clone https://github.com/llvm-mirror/clang.git --depth=1
+git clone https://github.com/llvm-mirror/lld.git --depth=1
 popd > /dev/null # $TMPDIR/llvm
 mkdir build
 pushd build > /dev/null # $TMPDIR/llvm/build
