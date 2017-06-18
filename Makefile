@@ -27,11 +27,12 @@ hdd.img: $(HDD)
 	@genext2fs -d hdd -b 8192 hdd.img
 
 help:
-	@echo "======= Sorbet build system help ======"
+	@echo "======= Pepper build system help ======"
 	@echo "all (default): Build kernel and bootable.iso"
 	@echo "bootable.iso: Build bootable.iso. Also builds kernel"
 	@echo "clean: Cleans *ALL* build files"
 	@echo "help: Displays this message"
+	@echo "kernel: Build the kernel"
 	@echo "qemu: Builds everything and loads QEMU with bootable.iso inserted"
 	@echo ""
 	@echo "Unrecognized options will be automatically passed through to Mint"
