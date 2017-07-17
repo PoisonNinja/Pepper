@@ -3,6 +3,11 @@
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
 pushd $TMPDIR > /dev/null
+git clone https://github.com/vertis/objconv.git
+pushd objconv > /dev/null
+g++ -o objconv -O2 src/*.cpp
+cp objconv /usr/local/bin/
+popd > /dev/null
 git clone git://git.savannah.gnu.org/grub.git
 pushd grub > /dev/null
 ./autogen.sh
