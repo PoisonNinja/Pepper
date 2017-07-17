@@ -12,9 +12,10 @@ TARGET=x86_64-elf
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
-BUILD_BINUTILS=false
-BUILD_GCC=false
-BUILD_OBJCONV=false
+BUILD_BINUTILS=true
+BUILD_GCC=true
+BUILD_OBJCONV=true
+BUILD_GRUB=true
 
 function cleanup() {
     echo ""
@@ -110,17 +111,22 @@ then
     popd > /dev/null
 fi
 
-git clone git://git.savannah.gnu.org/grub.git
-pushd grub > /dev/null
-./autogen.sh
-popd > /dev/null
-mkdir build
-pushd build > /dev/null
-../grub/configure --disable-werror TARGET_CC=x86_64-elf-gcc TARGET_OBJCOPY=x86_64-elf-objcopy \
-TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf
-make
-make install
-popd > /dev/null
+if [[ $BUILD_GRUB == true ]]
+then
+    git clone git://git.savannah.gnu.org/grub.git
+    pushd grub > /dev/null
+    ./autogen.sh
+    popd > /dev/null
+    mkdir build
+    pushd build > /dev/null
+    ../grub/configure --disable-werror TARGET_CC=x86_64-elf-gcc TARGET_OBJCOPY=x86_64-elf-objcopy \
+    TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf
+    make
+    make install
+    popd > /dev/null
+fi
+
 popd > /dev/null
 
 brew uninstall mpfr libmpc
+rm -rf "$DIR/local"
