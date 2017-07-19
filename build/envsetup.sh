@@ -15,7 +15,7 @@ export ROOT=$(realpath "$DIR/..")
 export PATH="$TOOLCHAIN/bin:$TOOLCHAIN/local/bin:$PATH"
 export -f croot
 
-alias cproto='cproto -e -I$ROOT/strawberry/include'
+alias cproto='cproto -e -I$ROOT/mint/include'
 
 echo "ROOT = $ROOT"
 echo "PATH = $PATH"
