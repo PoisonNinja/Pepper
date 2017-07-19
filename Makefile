@@ -4,9 +4,11 @@ SHELL := /bin/bash
 
 QEMU := qemu-system-x86_64
 
-QEMU_ARGS := -serial stdio -m 2048 -rtc base=localtime -cdrom bootable.iso -no-reboot -no-shutdown -cpu Nehalem
+QEMU_ARGS :=-m 2048 -rtc base=localtime -cdrom bootable.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
 QEMU_ACCEL := -M accel=kvm:tcg
+QEMU_SERIAL := -serial stdio
+QEMU_MONITOR := -monitor stdio
 
 HDD := $(shell find hdd/)
 
@@ -41,7 +43,10 @@ help:
 kernel: hdd/boot/mint.kernel
 
 qemu: bootable.iso hdd.img
-	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL)
+	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
+
+monitor: bootable.iso hdd.img
+	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
 
 # Internal targets
 hdd/boot/mint.kernel: FORCE
