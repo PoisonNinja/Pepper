@@ -180,3 +180,11 @@ echo "The toolchain has been installed successfully"
 echo "Don't forget to activate the toolchain!"
 echo
 echo ". build/envsetup.sh"
+if [[ "$HOST_OS" == "Darwin" ]]
+then
+    echo
+    echo "GRUB does not come preinstalled on MacOS, and it isn't available from Homebrew unfortunately"
+    echo "However, we require grub-mkrescue to create the bootable ISO"
+    echo
+    echo "Since you are running MacOS, please also run grub.sh located in the same folder as toolchain.sh"
+else
