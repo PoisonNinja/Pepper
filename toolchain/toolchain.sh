@@ -6,7 +6,7 @@ PREFIX="$DIR/local"
 PATH="$PREFIX/bin:$PATH"
 
 TARGET="x86_64-pc-none-elf"
-ARCH="x86_64"
+TARGET_ARCH="x86_64"
 TARGETS_TO_BUILD="X86"
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
@@ -54,34 +54,34 @@ trap cleanup EXIT
 if [[ "$1" != "--skip" ]]
 then
 
-    OS="Unknown"
-    ARCH="Unknown"
+    HOST_OS="Unknown"
+    HOST_ARCH="Unknown"
 
     if [ -f /etc/lsb-release ]; then
         . /etc/lsb-release
-        OS=$DISTRIB_ID
+        HOST_OS=$DISTRIB_ID
     elif [ -f /etc/debian_version ]; then
-        OS=Debian
+        HOST_OS=Debian
     elif [ -f /etc/redhat-release ]; then
-        OS="Red Hat"
+        HOST_OS="Red Hat"
     else
-        OS=$(uname -s)
+        HOST_OS=$(uname -s)
     fi
 
     case $(uname -m) in
     x86_64)
-        ARCH=x64
+        HOST_ARCH=x64
         ;;
     i*86)
-        ARCH=x86
+        HOST_ARCH=x86
         ;;
     *)
         ;;
     esac
 
     echo "Detected Information:"
-    echo "OS:" "$OS"
-    echo "Architecture:" "$ARCH"
+    echo "OS:" "$HOST_OS"
+    echo "Architecture:" "$HOST_ARCH"
 
     input=""
 
@@ -90,7 +90,7 @@ then
 
     if [[ "$input" == "y" ]]
     then
-        if [[ "$OS" == "Ubuntu" ]] || [[ "$OS" == "Debian" ]]
+        if [[ "$HOST_OS" == "Ubuntu" ]] || [[ "$HOST_OS" == "Debian" ]]
         then
             . /etc/lsb-release
             sudo apt update
@@ -116,7 +116,7 @@ then
                 echo ""
                 sudo apt install grub-pc-bin
             fi
-        elif [[ "$OS" == "Darwin" ]]
+        elif [[ "$HOST_OS" == "Darwin" ]]
         then
             if [ ! -f "$(which brew)" ]
             then
@@ -169,7 +169,7 @@ git clone https://github.com/llvm-mirror/lld.git --depth=1
 popd > /dev/null # $TMPDIR/llvm
 mkdir build
 pushd build > /dev/null # $TMPDIR/llvm/build
-cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD" -DCMAKE_BUILD_TYPE=Release
+cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$TARGET_ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD" -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 cmake --build . --target install
 popd > /dev/null # TMPDIR/llvm
