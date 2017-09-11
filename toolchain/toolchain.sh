@@ -9,6 +9,11 @@ TARGET="x86_64-pc-none-elf"
 TARGET_ARCH="x86_64"
 TARGETS_TO_BUILD="X86"
 
+# Clang doesn't use tags, using release branches instead
+LLVM_BRANCH="release_50"
+CLANG_BRANCH="release_50"
+LLD_BRANCH="release_50"
+
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
 # Useful functions
@@ -161,11 +166,11 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-git clone https://github.com/llvm-mirror/llvm.git --depth=1
+git clone -b $LLVM_BRANCH https://github.com/llvm-mirror/llvm.git --depth=1
 pushd llvm > /dev/null # $TMPDIR/llvm
 pushd tools > /dev/null # $TMPDIR/llvm/tools
-git clone https://github.com/llvm-mirror/clang.git --depth=1
-git clone https://github.com/llvm-mirror/lld.git --depth=1
+git clone -b $CLANG_BRANCH https://github.com/llvm-mirror/clang.git --depth=1
+git clone -b $LLD_BRANCH https://github.com/llvm-mirror/lld.git --depth=1
 popd > /dev/null # $TMPDIR/llvm
 mkdir build
 pushd build > /dev/null # $TMPDIR/llvm/build
@@ -187,4 +192,4 @@ then
     echo "However, we require grub-mkrescue to create the bootable ISO"
     echo
     echo "Since you are running MacOS, please also run grub.sh located in the same folder as toolchain.sh"
-else
+fi
