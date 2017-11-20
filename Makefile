@@ -15,12 +15,12 @@ HDD := $(shell find hdd/)
 # Userfacing targets
 all: bootable.iso hdd.img
 
-bootable.iso: hdd/boot/mint.kernel
+bootable.iso: hdd/boot/quark.kernel
 	grub-mkrescue -o bootable.iso hdd
 
 clean:
-	$(RM) bootable.iso hdd.img hdd/boot/mint.kernel
-	@cmake --build mint/build --target clean
+	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel
+	@cmake --build quark/build --target clean
 
 hdd.img: $(HDD)
 	@echo
@@ -37,10 +37,10 @@ help:
 	@echo "kernel: Build the kernel"
 	@echo "qemu: Builds everything and loads QEMU with bootable.iso inserted"
 	@echo ""
-	@echo "Unrecognized options will be automatically passed through to Mint"
+	@echo "Unrecognized options will be automatically passed through to Quark"
 	@echo "Therefore, you can run kernel makefile targets from this directory"
 
-kernel: hdd/boot/mint.kernel
+kernel: hdd/boot/quark.kernel
 
 qemu: bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
@@ -49,14 +49,14 @@ monitor: bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
 
 # Internal targets
-hdd/boot/mint.kernel: FORCE
-	@cmake --build mint/build --target install
+hdd/boot/quark.kernel: FORCE
+	@cmake --build quark/build --target install
 
 FORCE:
 
-# Pass unrecognized Makefile targets to the Mint build process
+# Pass unrecognized Makefile targets to the Quark build process
 # Allows us to run stuff like make config in this directory
 .DEFAULT:
-	@echo "Pepper does not recognize this target. Passing to Mint..."
+	@echo "Pepper does not recognize this target. Passing to Quark..."
 	@echo
-	@cmake --build mint/build --target $(MAKECMDGOALS)
+	@cmake --build quark/build --target $(MAKECMDGOALS)

@@ -4,4 +4,5 @@ toolchain/local
 # Files
 bootable.iso
 hdd.img
-hdd/boot/mint.kernel
+hdd/boot/*.kernel
+
