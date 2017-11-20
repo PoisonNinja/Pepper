@@ -1,3 +1,6 @@
 [submodule "mint"]
 	path = mint
 	url = https://github.com/PoisonNinja/mint.git
+[submodule "quark"]
+	path = quark
+	url = https://github.com/PoisonNinja/quark.git
