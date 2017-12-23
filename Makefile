@@ -9,6 +9,7 @@ QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=
 QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
+QEMU_REMOTE := -s -S
 
 HDD := $(shell find hdd/)
 
@@ -41,6 +42,9 @@ help:
 	@echo "Therefore, you can run kernel makefile targets from this directory"
 
 kernel: hdd/boot/quark.kernel
+
+remote: bootable.iso hdd.img
+	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL) $(QEMU_REMOTE)
 
 qemu: bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
