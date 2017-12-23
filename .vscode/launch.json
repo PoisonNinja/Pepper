@@ -13,6 +13,26 @@
             "remote": true,
             "cwd": "${workspaceRoot}",
             "autorun": [
+                /*
+                 * These series of commands execute after VS has connected to
+                 * QEMU, but before it starts debugging. The problem with
+                 * GDB and QEMU is that when QEMU switches from protected to
+                 * long mode, we get an error about "Remote 'g' packet reply is
+                 * too long: " followed by a long string of numbers. Per the
+                 * OSDev wiki, the appropriate fix is to set GDB to a specific
+                 * architecture (i386:x86-64:intel), set a breakpoint in 64-bit
+                 * mode, then continue. Once the program hits the breakpoint,
+                 * GDB will give you the error. Then, disconnect, set the
+                 * architecture to another one (i386:x86-64), and reconnect.
+                 * However, we have to swap around the architecture for some
+                 * reason, so we set i386:x86-64 initially, then
+                 * i386:x86-64:intel when reconnecting. To clean up, we delete
+                 * the breakpoint that we set, and leave QEMU in a paused
+                 * state since the extension we use to debug GDB in VS will
+                 * automatically execute continue after autorun completes. As
+                 * far as VS is concerned, this is the way that it was
+                 * launched, and will operate normally (breakpoints, inspect).
+                 */
                 "set arch i386:x86-64",
                 "break bootstrap64",
                 "continue",
