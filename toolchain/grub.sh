@@ -2,18 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-GCCVER="gcc-7.1.0"
-BINUTILSVER="binutils-2.28"
-GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.bz2"
-BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.bz2"
-
-PREFIX="$DIR/local"
-TARGET=x86_64-elf
-
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
-BUILD_BINUTILS=true
-BUILD_GCC=true
 BUILD_OBJCONV=true
 BUILD_GRUB=true
 
@@ -57,50 +47,7 @@ then
     exit 1
 fi
 
-if [[ -f "$DIR/toolchain.sh" ]]
-then
-    error
-    echo "Please copy this script to a folder outside of the Pepper folder and run it to avoid conflicting with the LLVM toolchain"
-    exit 1
-fi
-
 pushd $TMPDIR > /dev/null
-
-mkdir -p "$DIR/local"
-
-echo
-echo "Installing tools to $DIR/local"
-echo
-
-brew install mpfr libmpc
-
-if [[ $BUILD_BINUTILS == true ]]
-then
-    download $BINUTILSURL binutils.tar.bz2 || bail
-    extract binutils.tar.bz2 || bail
-    mkdir build-binutils
-    pushd build-binutils > /dev/null
-    ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-werror || bail
-    make || bail
-    make install || bail
-    popd > /dev/null
-fi
-
-if [[ $BUILD_GCC == true ]]
-then
-    download $GCCURL gcc.tar.bz2 || bail
-    extract gcc.tar.bz2 || bail
-    mkdir build-gcc
-    pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers || bail
-    make all-gcc || bail
-    make all-target-libgcc || bail
-    make install-gcc || bail
-    make install-target-libgcc || bail
-    popd > /dev/null
-fi
-
-PATH="$DIR/local/bin:$PATH"
 
 if [[ $BUILD_OBJCONV == true ]]
 then
@@ -119,14 +66,10 @@ then
     popd > /dev/null
     mkdir build
     pushd build > /dev/null
-    ../grub/configure --disable-werror TARGET_CC=x86_64-elf-gcc TARGET_OBJCOPY=x86_64-elf-objcopy \
-    TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf
+    ../grub/configure --disable-werror
     make
     make install
     popd > /dev/null
 fi
 
 popd > /dev/null
-
-brew uninstall mpfr libmpc
-rm -rf "$DIR/local"
