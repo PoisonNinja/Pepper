@@ -128,7 +128,7 @@ then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
             brew tap homebrew/versions
-            brew install gmp nasm genext2fs qemu xorriso cproto cmake ninja
+            brew install nasm genext2fs qemu xorriso cproto cmake ninja
             brew install grep --with-default-names
             brew install findutils --with-default-names
             brew install automake@1.12
