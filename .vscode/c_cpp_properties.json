@@ -3,7 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceRoot}",
+                "${workspaceRoot}/quark/include",
                 "${workspaceRoot}/toolchain/local/lib/clang/5.0.1/include"
             ],
             "defines": [],
