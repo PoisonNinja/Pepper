@@ -7,10 +7,12 @@ BINUTILSVER="binutils-2.28"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.bz2"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.bz2"
 
-PREFIX="$DIR/local"
 TARGET=x86_64-elf
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
+
+TOOLCHAIN_PREFIX="$TMPDIR/toolchain"
+PREFIX="$DIR/local"
 
 BUILD_BINUTILS=true
 BUILD_GCC=true
@@ -57,22 +59,16 @@ then
     exit 1
 fi
 
-if [[ -f "$DIR/toolchain.sh" ]]
-then
-    error
-    echo "Please copy this script to a folder outside of the Pepper folder and run it to avoid conflicting with the LLVM toolchain"
-    exit 1
-fi
-
 pushd $TMPDIR > /dev/null
 
-mkdir -p "$DIR/local"
+mkdir -p "$TOOLCHAIN_PREFIX"
 
 echo
-echo "Installing tools to $DIR/local"
+echo "Installing temporary toolchain to $TOOLCHAIN_PREFIX"
+echo "Installing GRUB to $PREFIX"
 echo
 
-brew install mpfr libmpc
+brew install mpfr libmpc || bail
 
 if [[ $BUILD_BINUTILS == true ]]
 then
@@ -80,7 +76,7 @@ then
     extract binutils.tar.bz2 || bail
     mkdir build-binutils
     pushd build-binutils > /dev/null
-    ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-werror || bail
+    ../$BINUTILSVER/configure --target=$TARGET --prefix="$TOOLCHAIN_PREFIX" --disable-nls --disable-werror || bail
     make || bail
     make install || bail
     popd > /dev/null
@@ -92,7 +88,7 @@ then
     extract gcc.tar.bz2 || bail
     mkdir build-gcc
     pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers || bail
+    ../$GCCVER/configure --target=$TARGET --prefix="$TOOLCHAIN_PREFIX" --disable-nls --enable-languages=c,c++ --without-headers || bail
     make all-gcc || bail
     make all-target-libgcc || bail
     make install-gcc || bail
@@ -100,13 +96,13 @@ then
     popd > /dev/null
 fi
 
-PATH="$DIR/local/bin:$PATH"
+PATH="$TOOLCHAIN_PREFIX/bin:$PATH"
 
 if [[ $BUILD_OBJCONV == true ]]
 then
     git clone https://github.com/vertis/objconv.git
     pushd objconv > /dev/null
-    g++ -o objconv -O2 src/*.cpp
+    g++ -o objconv -O2 src/*.cpp || bail
     cp objconv /usr/local/bin/
     popd > /dev/null
 fi
@@ -120,13 +116,14 @@ then
     mkdir build
     pushd build > /dev/null
     ../grub/configure --disable-werror TARGET_CC=x86_64-elf-gcc TARGET_OBJCOPY=x86_64-elf-objcopy \
-    TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf
-    make
-    make install
+    TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf \
+    --prefix="$PREFIX" || bail
+    make || bail
+    make install || bail
     popd > /dev/null
 fi
 
 popd > /dev/null
 
-brew uninstall mpfr libmpc
-rm -rf "$DIR/local"
+rm /usr/local/bin/objconv || bail
+brew uninstall mpfr libmpc || bail
