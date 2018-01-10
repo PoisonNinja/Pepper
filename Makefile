@@ -11,13 +11,15 @@ QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
 
+TOOLCHAIN_PREFIX := toolchain/local/bin
+
 HDD := $(shell find hdd/)
 
 # Userfacing targets
 all: bootable.iso hdd.img
 
 bootable.iso: hdd/boot/quark.kernel
-	grub-mkrescue -o bootable.iso hdd
+	$(TOOLCHAIN_PREFIX)/grub-mkrescue -o bootable.iso hdd
 
 clean:
 	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel
