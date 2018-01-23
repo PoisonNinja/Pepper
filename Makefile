@@ -1,6 +1,7 @@
 .PHONY: qemu
 
 SHELL := /bin/bash
+OS := $(shell uname -s)
 
 QEMU := qemu-system-x86_64
 
@@ -13,13 +14,19 @@ QEMU_REMOTE := -s -S
 
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
+ifeq ($(OS),Darwin)
+	GRUB_MKRESCUE := $(TOOLCHAIN_PREFIX)/grub-mkrescue
+else
+	GRUB_MKRESCUE := grub-mkrescue
+endif
+
 HDD := $(shell find hdd/)
 
 # Userfacing targets
 all: bootable.iso hdd.img
 
 bootable.iso: hdd/boot/quark.kernel
-	$(TOOLCHAIN_PREFIX)/grub-mkrescue -o bootable.iso hdd
+	$(GRUB_MKRESCUE) -o bootable.iso hdd
 
 clean:
 	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel
