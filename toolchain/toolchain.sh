@@ -99,7 +99,7 @@ then
         then
             . /etc/lsb-release
             sudo apt update
-            sudo apt -fy install build-essential clang-format clang lld-4.0 cmake cproto genext2fs grub-common libncurses5-dev nasm ninja-build qemu texinfo xorriso
+            sudo apt -fy install build-essential clang-format cmake cproto genext2fs grub-common libncurses5-dev nasm ninja-build qemu texinfo xorriso
             # Only Ubuntu Precise ships with Automake 1.11
             if [[ "$DISTRIB_CODENAME" != "precise " ]]
             then
