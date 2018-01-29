@@ -100,18 +100,6 @@ then
             . /etc/lsb-release
             sudo apt update
             sudo apt -fy install build-essential clang-format cmake cproto genext2fs grub-common libncurses5-dev nasm ninja-build qemu texinfo xorriso
-            # Only Ubuntu Precise ships with Automake 1.11
-            if [[ "$DISTRIB_CODENAME" != "precise " ]]
-            then
-                echo ""
-                echo "Your automake is too new! Installing an older version..."
-                echo ""
-                sudo apt-get -fy install automake1.11
-                echo ""
-                echo "Please select automake 1.11 when prompted..."
-                echo ""
-                sudo update-alternatives --config automake
-            fi
             # EFI installations are missing BIOS boot files, so using
             # grub-mkrescue would make unbootable disks
             if [[ -d "/sys/firmware/efi" ]]
@@ -127,21 +115,9 @@ then
             then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
-            brew tap homebrew/versions
             brew install nasm genext2fs qemu xorriso cproto cmake ninja
             brew install grep --with-default-names
             brew install findutils --with-default-names
-            brew install automake@1.12
-            # We don't have the luxury of update-alternatives, so we have to
-            # manually symlink the binaries
-            if [ ! -f /usr/local/bin/aclocal ]
-            then
-                ln -s /usr/local/bin/aclocal112 /usr/local/bin/aclocal
-            fi
-            if [ ! -f /usr/local/bin/automake ]
-            then
-                ln -s /usr/local/bin/automake112 /usr/local/bin/automake
-            fi
         else
             error
             echo "Your OS is currently not supported."
