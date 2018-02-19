@@ -23,19 +23,19 @@ else
 	GRUB_MKRESCUE := grub-mkrescue
 endif
 
-HDD := $(shell find hdd/)
+HDD := $(shell find hdd/ -path "hdd/boot/initrd.tar" -prune -o -print)
 
 # Userfacing targets
-all: initrd bootable.iso hdd.img
+all: bootable.iso hdd.img
 
 bootable.iso: hdd/boot/quark.kernel
 	$(GRUB_MKRESCUE) -o bootable.iso hdd
 
 clean:
-	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel initrd.tar
+	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
 	@cmake --build quark/build --target clean
 
-hdd.img: userspace $(HDD)
+hdd.img: hdd/boot/initrd.tar $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
@@ -53,13 +53,7 @@ help:
 	@echo "Unrecognized options will be automatically passed through to Quark"
 	@echo "Therefore, you can run kernel makefile targets from this directory"
 
-initrd: initrd.tar
-
-initrd.tar: userspace $(HDD)
-	@echo
-	@echo Generating initrd...
-	@echo
-	@tar -cvf initrd.tar --exclude $(INITRD_EXCLUDE) hdd
+initrd: hdd/boot/initrd.tar
 
 kernel: hdd/boot/quark.kernel
 
@@ -76,6 +70,12 @@ userspace:
 	@cmake --build userspace/build --target install
 
 # Internal targets
+hdd/boot/initrd.tar: userspace $(HDD)
+	@echo
+	@echo Generating initrd...
+	@echo
+	@tar -cvf hdd/boot/initrd.tar --exclude $(INITRD_EXCLUDE) hdd
+
 hdd/boot/quark.kernel: FORCE
 	@cmake --build quark/build --target install
 

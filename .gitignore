@@ -4,9 +4,9 @@ toolchain/local
 # Files
 bootable.iso
 hdd.img
-initrd.tar
 
 # sysroot
+hdd/boot/initrd.tar
 hdd/boot/*.kernel
 hdd/sbin
 
