@@ -12,6 +12,9 @@ QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
 
+INITRD_EXCLUDE := \
+	./hdd/boot
+
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
 ifeq ($(OS),Darwin)
@@ -23,16 +26,16 @@ endif
 HDD := $(shell find hdd/)
 
 # Userfacing targets
-all: bootable.iso hdd.img
+all: initrd bootable.iso hdd.img
 
 bootable.iso: hdd/boot/quark.kernel
 	$(GRUB_MKRESCUE) -o bootable.iso hdd
 
 clean:
-	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel
+	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel initrd.tar
 	@cmake --build quark/build --target clean
 
-hdd.img: $(HDD)
+hdd.img: userspace $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
@@ -50,16 +53,27 @@ help:
 	@echo "Unrecognized options will be automatically passed through to Quark"
 	@echo "Therefore, you can run kernel makefile targets from this directory"
 
+initrd: initrd.tar
+
+initrd.tar: userspace $(HDD)
+	@echo
+	@echo Generating initrd...
+	@echo
+	@tar -cvf initrd.tar --exclude $(INITRD_EXCLUDE) hdd
+
 kernel: hdd/boot/quark.kernel
 
-remote: bootable.iso hdd.img
+monitor: initrd bootable.iso hdd.img
+	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
+
+remote: initrd bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL) $(QEMU_REMOTE)
 
-qemu: bootable.iso hdd.img
+qemu: initrd bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
 
-monitor: bootable.iso hdd.img
-	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
+userspace:
+	@cmake --build userspace/build --target install
 
 # Internal targets
 hdd/boot/quark.kernel: FORCE
