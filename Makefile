@@ -28,14 +28,14 @@ HDD := $(shell find hdd/ -path "hdd/boot/initrd.tar" -prune -o -print)
 # Userfacing targets
 all: bootable.iso hdd.img
 
-bootable.iso: hdd/boot/quark.kernel
+bootable.iso: hdd/boot/quark.kernel hdd/boot/initrd.tar
 	$(GRUB_MKRESCUE) -o bootable.iso hdd
 
 clean:
 	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
 	@cmake --build quark/build --target clean
 
-hdd.img: hdd/boot/initrd.tar $(HDD)
+hdd.img: $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
