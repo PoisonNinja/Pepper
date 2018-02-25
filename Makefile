@@ -12,9 +12,11 @@ QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
 
-INITRD_EXCLUDE := \
+INITRD_EXCLUDE_LIST := \
 	./hdd/boot \
 	./hdd/usr
+
+INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
 
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
@@ -75,7 +77,7 @@ hdd/boot/initrd.tar: userspace $(HDD)
 	@echo
 	@echo Generating initrd...
 	@echo
-	@tar -cvf hdd/boot/initrd.tar --exclude $(INITRD_EXCLUDE) hdd
+	@tar -cvf hdd/boot/initrd.tar $(INITRD_EXCLUDE) hdd
 
 hdd/boot/quark.kernel: FORCE
 	@cmake --build quark/build --target install
