@@ -2,20 +2,12 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-GCCVER="gcc-7.1.0"
-BINUTILSVER="binutils-2.28"
-GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.bz2"
-BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.bz2"
-
-TARGET=x86_64-elf
+TARGET=x86_64-pepper
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
-TOOLCHAIN_PREFIX="$TMPDIR/toolchain"
 PREFIX="$DIR/local"
 
-BUILD_BINUTILS=true
-BUILD_GCC=true
 BUILD_OBJCONV=true
 BUILD_GRUB=true
 
@@ -64,46 +56,17 @@ pushd $TMPDIR > /dev/null
 mkdir -p "$TOOLCHAIN_PREFIX"
 
 echo
-echo "Installing temporary toolchain to $TOOLCHAIN_PREFIX"
 echo "Installing GRUB to $PREFIX"
 echo
 
-brew install mpfr libmpc || bail
-
-if [[ $BUILD_BINUTILS == true ]]
-then
-    download $BINUTILSURL binutils.tar.bz2 || bail
-    extract binutils.tar.bz2 || bail
-    mkdir build-binutils
-    pushd build-binutils > /dev/null
-    ../$BINUTILSVER/configure --target=$TARGET --prefix="$TOOLCHAIN_PREFIX" --disable-nls --disable-werror || bail
-    make || bail
-    make install || bail
-    popd > /dev/null
-fi
-
-if [[ $BUILD_GCC == true ]]
-then
-    download $GCCURL gcc.tar.bz2 || bail
-    extract gcc.tar.bz2 || bail
-    mkdir build-gcc
-    pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$TOOLCHAIN_PREFIX" --disable-nls --enable-languages=c,c++ --without-headers || bail
-    make all-gcc || bail
-    make all-target-libgcc || bail
-    make install-gcc || bail
-    make install-target-libgcc || bail
-    popd > /dev/null
-fi
-
-PATH="$TOOLCHAIN_PREFIX/bin:$PATH"
+PATH="$PREFIX/bin:$PATH"
 
 if [[ $BUILD_OBJCONV == true ]]
 then
     git clone https://github.com/vertis/objconv.git
     pushd objconv > /dev/null
     g++ -o objconv -O2 src/*.cpp || bail
-    cp objconv /usr/local/bin/
+    cp objconv $PREFIX/bin/
     popd > /dev/null
 fi
 
@@ -115,8 +78,8 @@ then
     popd > /dev/null
     mkdir build
     pushd build > /dev/null
-    ../grub/configure --disable-werror TARGET_CC=x86_64-elf-gcc TARGET_OBJCOPY=x86_64-elf-objcopy \
-    TARGET_STRIP=x86_64-elf-strip TARGET_NM=x86_64-elf-nm TARGET_RANLIB=x86_64-elf-ranlib --target=x86_64-elf \
+    ../grub/configure --disable-werror TARGET_CC=$TARGET-gcc TARGET_OBJCOPY=$TARGET-objcopy \
+    TARGET_STRIP=$TARGET-strip TARGET_NM=$TARGET-nm TARGET_RANLIB=$TARGET-ranlib --target=$TARGET \
     --prefix="$PREFIX" || bail
     make || bail
     make install || bail
@@ -125,5 +88,4 @@ fi
 
 popd > /dev/null
 
-rm /usr/local/bin/objconv || bail
-brew uninstall mpfr libmpc || bail
+rm $PREFIX/bin/objconv || bail
