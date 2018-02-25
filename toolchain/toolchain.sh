@@ -151,15 +151,15 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-# download $BINUTILSURL binutils.tar.xz || bail
-# extract binutils.tar.xz || bail
-# patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
-# mkdir build-binutils
-# pushd build-binutils > /dev/null
-# ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
-# make || bail
-# make install || bail
-# popd > /dev/null
+download $BINUTILSURL binutils.tar.xz || bail
+extract binutils.tar.xz || bail
+patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
+mkdir build-binutils
+pushd build-binutils > /dev/null
+../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
+make || bail
+make install || bail
+popd > /dev/null
 
 download $GCCURL gcc.tar.xz || bail
 extract gcc.tar.xz || bail
