@@ -4,15 +4,16 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PREFIX="$DIR/local"
 PATH="$PREFIX/bin:$PATH"
+SYSROOT=$(cd $DIR/../hdd; pwd)
 
-TARGET="x86_64-pc-none-elf"
-TARGET_ARCH="x86_64"
-TARGETS_TO_BUILD="X86"
+TARGET="x86_64-pepper"
 
-# Clang doesn't use tags, using release branches instead
-LLVM_BRANCH="release_50"
-CLANG_BRANCH="release_50"
-LLD_BRANCH="release_50"
+GCCVER="gcc-7.3.0"
+BINUTILSVER="binutils-2.30"
+NEWLIBVER="newlib-3.0.0"
+GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
+BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
+NEWLIBURL="ftp://sourceware.org/pub/newlib/$NEWLIBVER.tar.gz"
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
@@ -40,6 +41,13 @@ function download() {
 function extract() {
     echo "Extracting $1..."
     tar xf "$1"
+}
+
+function patchdir() {
+    echo "Patching $1..."
+    pushd $1 > /dev/null
+    patch -p1 < $2
+    popd > /dev/null
 }
 
 function bail() {
@@ -115,7 +123,8 @@ then
             then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
-            brew install nasm genext2fs qemu xorriso cproto cmake ninja
+            brew install mpfr gmp libmpc nasm genext2fs qemu xorriso cproto cmake ninja
+            brew install $DIR/automake@1.12.rb
             brew install grep --with-default-names
             brew install findutils --with-default-names
         else
@@ -142,19 +151,48 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-git clone -b $LLVM_BRANCH https://github.com/llvm-mirror/llvm.git --depth=1
-pushd llvm > /dev/null # $TMPDIR/llvm
-pushd tools > /dev/null # $TMPDIR/llvm/tools
-git clone -b $CLANG_BRANCH https://github.com/llvm-mirror/clang.git --depth=1
-git clone -b $LLD_BRANCH https://github.com/llvm-mirror/lld.git --depth=1
-popd > /dev/null # $TMPDIR/llvm
-mkdir build
-pushd build > /dev/null # $TMPDIR/llvm/build
-cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX="$PREFIX" -DLLVM_DEFAULT_TARGET_TRIPLE="$TARGET" -DLLVM_TARGET_ARCH="$TARGET_ARCH" -DLLVM_TARGETS_TO_BUILD="$TARGETS_TO_BUILD" -DCMAKE_BUILD_TYPE=Release
-cmake --build .
-cmake --build . --target install
-popd > /dev/null # TMPDIR/llvm
-popd > /dev/null # $TMPDIR
+# download $BINUTILSURL binutils.tar.xz || bail
+# extract binutils.tar.xz || bail
+# patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
+# mkdir build-binutils
+# pushd build-binutils > /dev/null
+# ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
+# make || bail
+# make install || bail
+# popd > /dev/null
+
+download $GCCURL gcc.tar.xz || bail
+extract gcc.tar.xz || bail
+patchdir $GCCVER $DIR/$GCCVER.patch
+mkdir build-gcc
+pushd build-gcc > /dev/null
+../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" || bail
+make all-gcc || bail
+make install-gcc || bail
+popd > /dev/null
+
+export PATH="$PREFIX/bin:$PATH"
+
+download $NEWLIBURL newlib.tar.gz || bail
+extract newlib.tar.gz || bail
+patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
+cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
+mkdir build-newlib
+pushd build-newlib > /dev/null
+../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
+make all || bail
+make DESTDIR="$SYSROOT" install || bail
+# Work around a newlib bug
+mv $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
+popd > /dev/null
+
+pushd build-gcc > /dev/null
+make all-target-libgcc || bail
+make install-target-libgcc || bail
+make all-target-libstdc++-v3 || bail
+make install-target-libstdc++-v3 || bail
+popd > /dev/null
+
 popd > /dev/null
 echo
 echo "The toolchain has been installed successfully"
