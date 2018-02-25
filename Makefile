@@ -13,7 +13,8 @@ QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
 
 INITRD_EXCLUDE := \
-	./hdd/boot
+	./hdd/boot \
+	./hdd/usr
 
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
@@ -39,7 +40,7 @@ hdd.img: $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
-	@genext2fs -d hdd -b 8192 hdd.img
+	@genext2fs -d hdd -b 65536 hdd.img
 
 help:
 	@echo "======= Pepper build system help ======"
@@ -66,7 +67,7 @@ remote: initrd bootable.iso hdd.img
 qemu: initrd bootable.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
 
-userspace:
+userspace: FORCE
 	@cmake --build userspace/build --target install
 
 # Internal targets
