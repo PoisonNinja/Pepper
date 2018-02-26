@@ -185,6 +185,7 @@ make all || bail
 make DESTDIR="$SYSROOT" install || bail
 # Work around a newlib bug
 mv $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
+rm -r $SYSROOT/usr/$TARGET
 popd > /dev/null
 
 pushd build-gcc > /dev/null
