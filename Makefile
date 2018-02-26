@@ -12,14 +12,17 @@ QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
 
+# Directories to exclude from the initrd
 INITRD_EXCLUDE_LIST := \
 	./hdd/boot \
 	./hdd/usr
 
+# Convert each item above into one string for passing to tar
 INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
 
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
+# grub tools are installed locally on MacOS
 ifeq ($(OS),Darwin)
 	GRUB_MKRESCUE := $(TOOLCHAIN_PREFIX)/grub-mkrescue
 else
@@ -37,24 +40,31 @@ bootable.iso: hdd/boot/quark.kernel hdd/boot/initrd.tar
 clean:
 	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
 	@cmake --build quark/build --target clean
+	@cmake --build userspace/build --target clean
 
 hdd.img: $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
+# Modify this if genext2fs complains about not enough space
 	@genext2fs -d hdd -b 65536 hdd.img
 
 help:
 	@echo "======= Pepper build system help ======"
-	@echo "all (default): Build kernel and bootable.iso"
-	@echo "bootable.iso: Build bootable.iso. Also builds kernel"
-	@echo "clean: Cleans *ALL* build files"
-	@echo "help: Displays this message"
-	@echo "kernel: Build the kernel"
-	@echo "qemu: Builds everything and loads QEMU with bootable.iso inserted"
+	@echo "all (default):   Build kernel and bootable.iso"
+	@echo "bootable.iso:    Build bootable.iso. Also builds the kernel and initrd"
+	@echo "clean:           Cleans *ALL* build files"
+	@echo "help:            Displays this message"
+	@echo "hdd.img:         Generate the hard disk image"
+	@echo "initrd:          Generate the initrd"
+	@echo "kernel:          Build the kernel"
+	@echo "monitor:         Same as QEMU, but loads monitor instead of serial output"
+	@echo "remote:          Same as QEMU, but waits for GDB to conenct before starting"
+	@echo "qemu:            Builds everything and loads QEMU with bootable.iso inserted"
+	@echo "userspace:       Build and install the userspace"
 	@echo ""
 	@echo "Unrecognized options will be automatically passed through to Quark"
-	@echo "Therefore, you can run kernel makefile targets from this directory"
+	@echo "Therefore, you can run kernel Makefile targets from this directory"
 
 initrd: hdd/boot/initrd.tar
 
