@@ -15,6 +15,16 @@ function cleanup() {
     echo ""
     echo "Please wait, cleaning up..."
     rm -rf "$TMPDIR"
+    # We only want to remove the symlinks if we are the ones who created it
+    # It's possible that there is already an installation of automake
+    # so we shouldn't remove it then
+    if [ -f /usr/local/bin/.did_symlink_automake ]
+    then
+        rm /usr/local/bin/automake
+        rm /usr/local/bin/aclocal
+        rm /usr/local/bin/.did_symlink_automake
+    fi
+    rm -f $PREFIX/bin/objconv
 }
 
 function error() {
@@ -53,20 +63,25 @@ fi
 
 pushd $TMPDIR > /dev/null
 
-mkdir -p "$TOOLCHAIN_PREFIX"
-
 echo
 echo "Installing GRUB to $PREFIX"
 echo
 
 PATH="$PREFIX/bin:$PATH"
 
+if [ ! -f /usr/local/bin/aclocal ]
+then
+    ln -s $(which aclocal112) /usr/local/bin/aclocal || bail
+    ln -s $(which automake112) /usr/local/bin/automake || bail
+    touch /usr/local/bin/.did_symlink_automake
+fi
+
 if [[ $BUILD_OBJCONV == true ]]
 then
     git clone https://github.com/vertis/objconv.git
     pushd objconv > /dev/null
     g++ -o objconv -O2 src/*.cpp || bail
-    cp objconv $PREFIX/bin/
+    cp objconv $PREFIX/bin/ || bail
     popd > /dev/null
 fi
 
@@ -87,5 +102,3 @@ then
 fi
 
 popd > /dev/null
-
-rm $PREFIX/bin/objconv || bail
