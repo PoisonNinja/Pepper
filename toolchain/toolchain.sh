@@ -146,6 +146,7 @@ then
 fi
 pushd "$TMPDIR" > /dev/null
 mkdir -p "$DIR/local"
+mkdir -p "$SYSROOT/usr/include"
 
 echo
 echo "Installing tools to $DIR/local"
