@@ -4,14 +4,16 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceRoot}/quark/include",
-                "${workspaceRoot}/toolchain/local/lib/clang/5.0.1/include"
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
                     "${workspaceRoot}/quark/include",
-                    "${workspaceRoot}/toolchain/local/lib/clang/5.0.1/include"
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
@@ -25,14 +27,16 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceRoot}/quark/include",
-                "${workspaceRoot}/toolchain/local/lib/clang/5.0.1/include"
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
                     "${workspaceRoot}/quark/include",
-                    "${workspaceRoot}/toolchain/local/lib/clang/5.0.1/include"
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
