@@ -14,8 +14,8 @@ QEMU_REMOTE := -s -S
 
 # Directories to exclude from the initrd
 INITRD_EXCLUDE_LIST := \
-	./hdd/boot \
-	./hdd/usr
+	hdd/boot \
+	hdd/usr
 
 # Convert each item above into one string for passing to tar
 INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
