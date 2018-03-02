@@ -45,18 +45,16 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include",
-                "${workspaceRoot}"
+                "${workspaceRoot}/quark/include",
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
             ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE"
-            ],
-            "intelliSenseMode": "msvc-x64",
+            "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
-                    "${workspaceRoot}"
+                    "${workspaceRoot}/quark/include",
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
+                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
