@@ -14,8 +14,8 @@ QEMU_REMOTE := -s -S
 
 # Directories to exclude from the initrd
 INITRD_EXCLUDE_LIST := \
-	hdd/boot \
-	hdd/usr
+	boot \
+	usr
 
 # Convert each item above into one string for passing to tar
 INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
@@ -87,7 +87,7 @@ hdd/boot/initrd.tar: userspace $(HDD)
 	@echo
 	@echo Generating initrd...
 	@echo
-	@tar -cvf hdd/boot/initrd.tar $(INITRD_EXCLUDE) hdd
+	@tar -cvf hdd/boot/initrd.tar $(INITRD_EXCLUDE) -C hdd .
 
 hdd/boot/quark.kernel: FORCE
 	@cmake --build quark/build --target install
