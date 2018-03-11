@@ -14,4 +14,5 @@ DEFN_SYSCALL0(test, 0);
 int main(int argc, char** argv)
 {
     syscall_test();
+    for(;;);
 }
