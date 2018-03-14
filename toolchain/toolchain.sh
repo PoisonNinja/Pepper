@@ -17,6 +17,13 @@ NEWLIBURL="ftp://sourceware.org/pub/newlib/$NEWLIBVER.tar.gz"
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
+SKIP_DEPS=false
+SKIP_GCC=false
+SKIP_BINUTILS=false
+SKIP_NEWLIB=false
+
+LOCAL_NEWLIB=""
+
 # Useful functions
 function cleanup() {
     echo ""
@@ -64,7 +71,30 @@ PACKAGES="build-essential libmpfr-dev libmpc-dev libgmp3-dev nasm genext2fs texi
 
 trap cleanup EXIT
 
-if [[ "$1" != "--skip" ]]
+while test $# -gt 0
+do
+    case "$1" in
+        --skip-dependencies)
+            SKIP_DEPS=true
+            ;;
+        --skip-gcc)
+            SKIP_GCC=true
+            ;;
+        --skip-binutils)
+            SKIP_BINUTILS=true
+            ;;
+        --skip-newlib)
+            SKIP_NEWLIB=true
+            ;;
+        --local-newlib)
+            LOCAL_NEWLIB="$2"
+            shift
+            ;;
+    esac
+    shift
+done
+
+if [[ $SKIP_DEPS == false ]]
 then
 
     HOST_OS="Unknown"
@@ -143,7 +173,10 @@ then
         echo "Press enter when you have installed those packages to continue..."
         read -r
     fi
+else
+    echo "Skipping dependencies installation"
 fi
+
 pushd "$TMPDIR" > /dev/null
 mkdir -p "$DIR/local"
 mkdir -p "$SYSROOT/usr/include"
@@ -152,48 +185,74 @@ echo
 echo "Installing tools to $DIR/local"
 echo
 
-download $BINUTILSURL binutils.tar.xz || bail
-extract binutils.tar.xz || bail
-patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
-mkdir build-binutils
-pushd build-binutils > /dev/null
-../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
-make || bail
-make install || bail
-popd > /dev/null
+if [[ $SKIP_BINUTILS == false ]]
+then
+    download $BINUTILSURL binutils.tar.xz || bail
+    extract binutils.tar.xz || bail
+    patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
+    mkdir build-binutils
+    pushd build-binutils > /dev/null
+    ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
+    make || bail
+    make install || bail
+    popd > /dev/null
+else
+    echo "Skipping binutils build"
+fi
 
-download $GCCURL gcc.tar.xz || bail
-extract gcc.tar.xz || bail
-patchdir $GCCVER $DIR/$GCCVER.patch
-mkdir build-gcc
-pushd build-gcc > /dev/null
-../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" || bail
-make all-gcc || bail
-make install-gcc || bail
-popd > /dev/null
+if [[ $SKIP_GCC == false ]]
+then
+    download $GCCURL gcc.tar.xz || bail
+    extract gcc.tar.xz || bail
+    patchdir $GCCVER $DIR/$GCCVER.patch
+    mkdir build-gcc
+    pushd build-gcc > /dev/null
+    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" || bail
+    make all-gcc || bail
+    make install-gcc || bail
+    popd > /dev/null
+else
+    echo "Skipping GCC build"
+fi
 
 export PATH="$PREFIX/bin:$PATH"
 
-download $NEWLIBURL newlib.tar.gz || bail
-extract newlib.tar.gz || bail
-patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
-cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
-mkdir build-newlib
-pushd build-newlib > /dev/null
-../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
-make all || bail
-make DESTDIR="$SYSROOT" install || bail
-# Work around a newlib bug
-mv $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
-rm -r $SYSROOT/usr/$TARGET
-popd > /dev/null
+if [[ $SKIP_NEWLIB == false ]]
+then
+    if [[ ! -z "$LOCAL_NEWLIB" ]]
+    then
+        echo "Using local newlib: $LOCAL_NEWLIB"
+        cp $LOCAL_NEWLIB ./newlib.tar.gz || bail
+    else
+        download $NEWLIBURL newlib.tar.gz || bail
+    fi
+    extract newlib.tar.gz || bail
+    patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
+    cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
+    mkdir build-newlib
+    pushd build-newlib > /dev/null
+    ../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
+    make all || bail
+    make DESTDIR="$SYSROOT" install || bail
+    # Work around a newlib bug
+    mv $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
+    rm -r $SYSROOT/usr/$TARGET
+    popd > /dev/null
+else
+    echo "Skipping newlib build"
+fi
 
-pushd build-gcc > /dev/null
-make all-target-libgcc || bail
-make install-target-libgcc || bail
-make all-target-libstdc++-v3 || bail
-make install-target-libstdc++-v3 || bail
-popd > /dev/null
+if [[ $KSIP_GCC == false ]]
+then
+    pushd build-gcc > /dev/null
+    make all-target-libgcc || bail
+    make install-target-libgcc || bail
+    make all-target-libstdc++-v3 || bail
+    make install-target-libstdc++-v3 || bail
+    popd > /dev/null
+else
+    echo "Skipping libstdc++v3 build"
+fi
 
 popd > /dev/null
 echo
