@@ -1,14 +1,19 @@
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/fcntl.h>
-#include <sys/times.h>
-#include <sys/errno.h>
-#include <sys/time.h>
 #include <stdio.h>
+#include <sys/errno.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/types.h>
 
-void _exit();
+void _exit(int rc)
+{
+    syscall(SYS_exit, rc, 0, 0, 0, 0);
+}
 int close(int file);
-char **environ; /* pointer to array of char * strings that define the current environment variables */
+char **environ; /* pointer to array of char * strings that define the current
+                   environment variables */
 int execve(char *name, char **argv, char **env);
 int fork();
 int fstat(int file, struct stat *st);
