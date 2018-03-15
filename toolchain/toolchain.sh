@@ -235,14 +235,14 @@ then
     make all || bail
     make DESTDIR="$SYSROOT" install || bail
     # Work around a newlib bug
-    mv $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
+    cp -R $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
     rm -r $SYSROOT/usr/$TARGET
     popd > /dev/null
 else
     echo "Skipping newlib build"
 fi
 
-if [[ $KSIP_GCC == false ]]
+if [[ $SKIP_GCC == false ]]
 then
     pushd build-gcc > /dev/null
     make all-target-libgcc || bail
