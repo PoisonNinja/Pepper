@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <sys/errno.h>
 #include <sys/fcntl.h>
@@ -22,7 +23,18 @@ int isatty(int file);
 int kill(int pid, int sig);
 int link(char *old, char *new);
 int lseek(int file, int ptr, int dir);
-int open(const char *name, int flags, ...);
+int open(const char *name, int flags, ...)
+{
+    va_list argp;
+    mode_t mode = 0;
+    va_start(argp, flags);
+    if (flags & O_CREAT)
+        mode = va_arg(argp, mode_t);
+    va_end(argp);
+
+    int result = syscall(SYS_open, name, flags, mode, 0, 0);
+    return result;
+}
 int read(int file, char *ptr, int len);
 caddr_t sbrk(int incr);
 int stat(const char *file, struct stat *st);
