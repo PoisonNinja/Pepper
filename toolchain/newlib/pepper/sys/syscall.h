@@ -1,10 +1,12 @@
+#pragma once
+
+#include <stdint.h>
+
+#define SYS_read 0
+#define SYS_write 1
+#define SYS_open 2
+#define SYS_close 3
 #define SYS_exit 60
 
-static long syscall(int num, long a, long b, long c, long d, long e)
-{
-    long x;
-    __asm__ __volatile__("int $0x80"
-                         : "=a"(x)
-                         : "0"(num), "r"(a), "c"(b), "d"(c), "S"(d), "D"(e));
-    return x;
-}
+extern uint64_t syscall(uint64_t num, uint64_t a, uint64_t b, uint64_t c,
+                        uint64_t d, uint64_t e);
