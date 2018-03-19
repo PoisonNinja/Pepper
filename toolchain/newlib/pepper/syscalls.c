@@ -12,14 +12,24 @@ void _exit(int rc)
 {
     syscall(SYS_exit, rc, 0, 0, 0, 0);
 }
-int close(int file);
+int close(int file)
+{
+    return syscall(SYS_close, file, 0, 0, 0, 0);
+}
 char **environ; /* pointer to array of char * strings that define the current
                    environment variables */
 int execve(char *name, char **argv, char **env);
 int fork();
-int fstat(int file, struct stat *st);
+int fstat(int file, struct stat *st)
+{
+    return syscall(SYS_fstat, file, st, 0, 0, 0);
+}
 int getpid();
-int isatty(int file);
+int isatty(int file)
+{
+    // Always return as a TTY
+    return 1;
+}
 int kill(int pid, int sig);
 int link(char *old, char *new);
 int lseek(int file, int ptr, int dir);
@@ -35,11 +45,20 @@ int open(const char *name, int flags, ...)
     int result = syscall(SYS_open, name, flags, mode, 0, 0);
     return result;
 }
-int read(int file, char *ptr, int len);
+ssize_t read(int file, char *ptr, int len)
+{
+    return syscall(SYS_read, file, ptr, len, 0, 0);
+}
 caddr_t sbrk(int incr);
-int stat(const char *file, struct stat *st);
+int stat(const char *file, struct stat *st)
+{
+    return syscall(SYS_stat, file, st, 0, 0, 0);
+}
 clock_t times(struct tms *buf);
 int unlink(char *name);
 int wait(int *status);
-int write(int file, char *ptr, int len);
+ssize_t write(int file, char *ptr, int len)
+{
+    return syscall(SYS_write, file, ptr, len, 0, 0);
+}
 int gettimeofday(struct timeval *__restrict__ p, void *__restrict__ tz);
