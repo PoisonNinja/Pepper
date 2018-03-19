@@ -1,18 +1,16 @@
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-
-
-#define DEFN_SYSCALL0(fn, num) \
-int syscall_##fn() \
-{ \
- int a; \
- asm volatile("int $0x80" : "=a" (a) : "0" (num)); \
- return a; \
-}
-
-DEFN_SYSCALL0(test, 0);
+#include <sys/syscall.h>
 
 int main(int argc, char** argv)
 {
-    syscall_test();
-    for(;;);
+    int fd = open("/sbin/init", O_RDONLY, 0);
+    if (argc == 2 && !strcmp(argv[1], "test")) {
+        syscall(42, 1, 2, 3, 4, 5);
+    }
+    if (fd == 0) {
+        syscall(20, 0xDE, 0xAD, 0xBE, 0xEE, 0xEF);
+    }
 }
