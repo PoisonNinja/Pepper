@@ -13,4 +13,5 @@ int main(int argc, char** argv)
     if (fd == 0) {
         syscall(20, 0xDE, 0xAD, 0xBE, 0xEE, 0xEF);
     }
+    printf("%s\n", "Hello world\n");
 }
