@@ -8,6 +8,14 @@
 #include <sys/times.h>
 #include <sys/types.h>
 
+void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
+{
+}
+
+int munmap(void *, int)
+{
+}
+
 void _exit(int rc)
 {
     syscall(SYS_exit, rc, 0, 0, 0, 0);
@@ -32,7 +40,10 @@ int isatty(int file)
 }
 int kill(int pid, int sig);
 int link(char *old, char *new);
-int lseek(int file, int ptr, int dir);
+int lseek(int file, int offset, int whence)
+{
+    return syscall(SYS_lseek, file, offset, whence, 0, 0);
+}
 int open(const char *name, int flags, ...)
 {
     va_list argp;
