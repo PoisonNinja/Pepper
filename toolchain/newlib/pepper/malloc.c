@@ -1,4 +1,6 @@
 #include "malloc.h"
+#include <stddef.h>
+#include <sys/mman.h>
 
 /**  Durand's Ridiculously Amazing Super Duper Memory functions.  */
 
@@ -30,6 +32,12 @@ int liballoc_unlock()
 
 void *liballoc_alloc(int pages)
 {
+    size_t size = pages * 4096;  // TODO: Use getpagesize();
+    void *ret = mmap(NULL, size, PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (ret == MAP_FAILED)
+        return NULL;
+    return ret;
 }
 
 int liballoc_free(void *ptr, int pages)
