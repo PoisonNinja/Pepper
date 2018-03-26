@@ -6,8 +6,17 @@
 extern "C" {
 #endif
 
+struct mmap_wrapper {
+    void *addr;
+    size_t length;
+    int prot;
+    int flags;
+    int fd;
+    off_t offset;
+};
+
 void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
-int munmap(void *, int);
+int munmap(void *addr, size_t length);
 
 #define PROT_READ 0x1
 #define PROT_WRITE 0x2
@@ -20,6 +29,8 @@ int munmap(void *, int);
 #define MAP_FILE 0x000
 #define MAP_ANONYMOUS 0x020
 #define MAP_ANON MAP_ANONYMOUS
+
+#define MAP_FAILED (void *)-1
 
 #ifdef __cplusplus
 }

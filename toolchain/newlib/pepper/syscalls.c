@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/errno.h>
 #include <sys/fcntl.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
@@ -10,9 +11,18 @@
 
 void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 {
+    struct mmap_wrapper wrapper = {
+        .addr = addr,
+        .length = len,
+        .prot = prot,
+        .flags = flags,
+        .fd = fildes,
+        .offset = off,
+    };
+    return syscall(SYS_mmap, &wrapper, 0, 0, 0, 0);
 }
 
-int munmap(void *, int)
+int munmap(void *addr, size_t length)
 {
 }
 
