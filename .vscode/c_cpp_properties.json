@@ -3,62 +3,55 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceRoot}/quark/include",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                "${workspaceRoot}/quark/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "${workspaceRoot}/quark/include",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                    "${workspaceRoot}/quark/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "macFrameworkPath": [
-                "/System/Library/Frameworks",
-                "/Library/Frameworks"
-            ]
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "cStandard": "c11",
+            "cppStandard": "c++11"
         },
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceRoot}/quark/include",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                "${workspaceRoot}/quark/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "${workspaceRoot}/quark/include",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                    "${workspaceRoot}/quark/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "cStandard": "c11",
+            "cppStandard": "c++11"
         },
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceRoot}/quark/include",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                "${workspaceRoot}/quark/include"
             ],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "${workspaceRoot}/quark/include",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0",
-                    "${workspaceRoot}/toolchain/local/x86_64-pepper/include/c++/7.3.0/x86_64-pepper"
+                    "${workspaceRoot}/quark/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "cStandard": "c11",
+            "cppStandard": "c++11"
         }
     ],
     "version": 3
