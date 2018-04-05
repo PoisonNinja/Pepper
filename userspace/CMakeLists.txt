@@ -42,3 +42,4 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DQUARK_RELEASE")
 message(STATUS "CFLAGS: " ${CMAKE_C_FLAGS})
 
 add_subdirectory(core)
+add_subdirectory(extra)
