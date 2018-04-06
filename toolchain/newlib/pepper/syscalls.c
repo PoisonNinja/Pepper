@@ -24,6 +24,7 @@ void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 
 int munmap(void *addr, size_t length)
 {
+    return syscall(123, 0, 0, 0, 0, 0);
 }
 
 void _exit(int rc)
@@ -36,13 +37,21 @@ int close(int file)
 }
 char **environ; /* pointer to array of char * strings that define the current
                    environment variables */
+
 int execve(char *name, char **argv, char **env);
-int fork();
+
+pid_t fork()
+{
+    return syscall(SYS_fork, 0, 0, 0, 0, 0);
+}
+
 int fstat(int file, struct stat *st)
 {
     return syscall(SYS_fstat, file, st, 0, 0, 0);
 }
+
 int getpid();
+
 int isatty(int file)
 {
     // Always return as a TTY
@@ -70,7 +79,7 @@ ssize_t read(int file, char *ptr, int len)
 {
     return syscall(SYS_read, file, ptr, len, 0, 0);
 }
-caddr_t sbrk(int incr);
+
 int stat(const char *file, struct stat *st)
 {
     return syscall(SYS_stat, file, st, 0, 0, 0);
