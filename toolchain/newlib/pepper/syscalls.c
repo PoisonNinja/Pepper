@@ -50,23 +50,14 @@ int fstat(int file, struct stat *st)
     return syscall(SYS_fstat, file, st, 0, 0, 0);
 }
 
-int getpid()
-{
-    // TODO: Replace with syscall
-    return 1;
-}
+int getpid();
 
 int isatty(int file)
 {
     // Always return as a TTY
     return 1;
 }
-int kill(int pid, int sig)
-{
-    // TODO: Replace with syscall
-    return -1;
-}
-
+int kill(int pid, int sig);
 int link(char *old, char *new);
 int lseek(int file, int offset, int whence)
 {
