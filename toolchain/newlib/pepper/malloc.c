@@ -542,6 +542,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #define NO_MALLINFO 1
 #define LACKS_UNISTD_H
 #define LACKS_TIME_H
+#define ABORT
 
 #ifndef WIN32
 #ifdef _WIN32
