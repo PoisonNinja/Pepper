@@ -15,5 +15,9 @@ int main(int argc, char** argv)
         printf("#%d: %s\n", i, argv[i]);
     }
     pid_t pid = fork();
-    printf("My PID is %llX\n", pid);
+    if (pid) {
+        printf("I am the parent! My child's PID is %lld\n", pid);
+    } else {
+        printf("I am the child! I don't know my PID :(\n");
+    }
 }
