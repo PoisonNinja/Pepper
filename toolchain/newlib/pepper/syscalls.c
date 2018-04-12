@@ -42,7 +42,7 @@ int execve(char *name, char **argv, char **env);
 
 pid_t fork()
 {
-    return legacy_syscall(SYS_fork, 0, 0, 0, 0, 0);
+    return syscall(SYS_fork, 0, 0, 0, 0, 0);
 }
 
 int fstat(int file, struct stat *st)
