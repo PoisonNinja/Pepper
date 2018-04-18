@@ -16,8 +16,18 @@ int main(int argc, char** argv)
     }
     pid_t pid = fork();
     if (pid) {
-        printf("I am the parent! My child's PID is %d\n", pid);
+        printf("parent: My child's PID is %d\n", pid);
     } else {
-        printf("I am the child! I don't know my PID :(\n");
+        printf("child: I am the child! I don't know my PID :(\n");
+        printf("child: Preparing to exec...\n");
+        char* argv[] = {
+            "/sbin/hello",
+            (char*)0,
+        };
+        char* envp[] = {
+            "hello=world",
+            (char*)0,
+        };
+        execve("/sbin/hello", argv, envp);
     }
 }
