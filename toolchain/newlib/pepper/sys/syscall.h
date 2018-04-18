@@ -13,6 +13,7 @@
 #define SYS_mprotect 10
 #define SYS_munmap 11
 #define SYS_fork 57
+#define SYS_execve 59
 #define SYS_exit 60
 
 extern uint64_t syscall(uint64_t num, uint64_t a, uint64_t b, uint64_t c,
