@@ -53,7 +53,10 @@ int fstat(int file, struct stat *st)
     return syscall(SYS_fstat, file, st, 0, 0, 0);
 }
 
-int getpid();
+int getpid()
+{
+    return syscall(SYS_getpid, 0, 0, 0, 0, 0);
+}
 
 int isatty(int file)
 {
