@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     if (pid) {
         printf("[init] parent: My child's PID is %d\n", pid);
     } else {
-        printf("[init] child: I am the child! I don't know my PID :(\n");
+        printf("[init] child: I am the child! My PID is %d\n", getpid());
         printf("[init] child: Preparing to exec...\n");
         char* argv[] = {
             "/sbin/hello",
