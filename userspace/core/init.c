@@ -9,17 +9,17 @@ int main(int argc, char** argv)
     open("/dev/tty", O_RDONLY);  // stdin
     open("/dev/tty", O_WRONLY);  // stdout
     open("/dev/tty", O_WRONLY);  // stderr
-    printf("Hello from userspace!\n");
-    printf("%d arguments passed in\n", argc);
+    printf("[init] Hello from userspace!\n");
+    printf("[init] %d arguments passed in\n", argc);
     for (int i = 0; i < argc; i++) {
-        printf("#%d: %s\n", i, argv[i]);
+        printf("[init] #%d: %s\n", i, argv[i]);
     }
     pid_t pid = fork();
     if (pid) {
-        printf("parent: My child's PID is %d\n", pid);
+        printf("[init] parent: My child's PID is %d\n", pid);
     } else {
-        printf("child: I am the child! I don't know my PID :(\n");
-        printf("child: Preparing to exec...\n");
+        printf("[init] child: I am the child! I don't know my PID :(\n");
+        printf("[init] child: Preparing to exec...\n");
         char* argv[] = {
             "/sbin/hello",
             (char*)0,
