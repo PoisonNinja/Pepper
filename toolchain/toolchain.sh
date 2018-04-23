@@ -67,7 +67,7 @@ function realpath() {
     cd "$1" || bail; pwd
 }
 
-PACKAGES="build-essential libmpfr-dev libmpc-dev libgmp3-dev nasm genext2fs texinfo qemu grub-common libncurses5-dev xorriso clang-format automake1.11 cproto"
+PACKAGES="build-essential clang-format cmake cproto curl genext2fs grub-common libmpfr-dev libmpc-dev libgmp3-dev libncurses5-dev nasm ninja-build qemu texinfo xorriso"
 
 trap cleanup EXIT
 
@@ -137,7 +137,7 @@ then
         then
             . /etc/lsb-release
             sudo apt update
-            sudo apt -fy install build-essential clang-format cmake cproto genext2fs grub-common libncurses5-dev nasm ninja-build qemu texinfo xorriso
+            sudo apt -fy install build-essential clang-format cmake cproto curl genext2fs grub-common libmpfr-dev libmpc-dev libgmp3-dev libncurses5-dev nasm ninja-build qemu texinfo xorriso
             # EFI installations are missing BIOS boot files, so using
             # grub-mkrescue would make unbootable disks
             if [[ -d "/sys/firmware/efi" ]]
