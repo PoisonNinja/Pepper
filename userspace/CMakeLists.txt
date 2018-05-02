@@ -8,7 +8,12 @@ endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 set(CMAKE_SYSTEM_NAME       Generic)
 set(CMAKE_SYSTEM_VERSION    1)
 
-find_program(C x86_64-pepper-gcc)
+if(NOT DEFINED ARCH)
+    set(ARCH "x86_64")
+endif()
+message(STATUS "Architecture: " ${ARCH})
+
+find_program(C ${ARCH}-pepper-gcc)
 if(NOT C)
     message(FATAL_ERROR "Compiler not found! Run the \
                          toolchain script in Pepper to build a toolchain. If \
