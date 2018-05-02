@@ -1,0 +1,3 @@
+.global syscall
+syscall:
+    ret
