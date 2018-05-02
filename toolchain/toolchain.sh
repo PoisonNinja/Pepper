@@ -6,7 +6,8 @@ PREFIX="$DIR/local"
 PATH="$PREFIX/bin:$PATH"
 SYSROOT=$(cd $DIR/../hdd; pwd)
 
-TARGET="x86_64-pepper"
+TARGET_ARCH="${TARGET_ARCH:-x86_64}"
+TARGET="$TARGET_ARCH-pepper"
 
 GCCVER="gcc-7.3.0"
 BINUTILSVER="binutils-2.30"
@@ -94,6 +95,11 @@ do
     shift
 done
 
+
+echo "Target information:"
+echo "Architecture:" "$TARGET_ARCH"
+echo
+
 if [[ $SKIP_DEPS == false ]]
 then
 
@@ -122,7 +128,7 @@ then
         ;;
     esac
 
-    echo "Detected Information:"
+    echo "Host information:"
     echo "OS:" "$HOST_OS"
     echo "Architecture:" "$HOST_ARCH"
 
@@ -229,6 +235,7 @@ then
     extract newlib.tar.gz || bail
     patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
     cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
+    cp $DIR/newlib/pepper/$TARGET_ARCH/* $NEWLIBVER/newlib/libc/sys/pepper
     mkdir build-newlib
     pushd build-newlib > /dev/null
     ../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
