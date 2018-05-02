@@ -3,7 +3,8 @@
 SHELL := /bin/bash
 OS := $(shell uname -s)
 
-QEMU := qemu-system-x86_64
+ARCH ?= x86_64
+QEMU := qemu-system-$(ARCH)
 
 QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom bootable.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
