@@ -236,6 +236,7 @@ then
     patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
     cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
     cp $DIR/newlib/pepper/$TARGET_ARCH/* $NEWLIBVER/newlib/libc/sys/pepper
+    cp $DIR/newlib/pepper/$TARGET_ARCH/sys/* $NEWLIBVER/newlib/libc/sys/pepper/sys/
     mkdir build-newlib
     pushd build-newlib > /dev/null
     ../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
