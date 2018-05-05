@@ -6,7 +6,7 @@ OS := $(shell uname -s)
 ARCH ?= x86_64
 QEMU := qemu-system-$(ARCH)
 
-QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom bootable.iso -no-reboot -no-shutdown -cpu Nehalem
+QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
 QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_SERIAL := -serial stdio
@@ -33,13 +33,13 @@ endif
 HDD := $(shell find hdd/ -path "hdd/boot/initrd.tar" -prune -o -print)
 
 # Userfacing targets
-all: bootable.iso hdd.img
+all: pepper.iso hdd.img
 
-bootable.iso: hdd/boot/quark.kernel hdd/boot/initrd.tar
-	$(GRUB_MKRESCUE) -o bootable.iso hdd
+pepper.iso: hdd/boot/quark.kernel hdd/boot/initrd.tar
+	$(GRUB_MKRESCUE) -o pepper.iso hdd
 
 clean:
-	$(RM) bootable.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
+	$(RM) pepper.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
 	@cmake --build quark/build --target clean
 	@cmake --build userspace/build --target clean
 
@@ -52,8 +52,8 @@ hdd.img: $(HDD)
 
 help:
 	@echo "======= Pepper build system help ======"
-	@echo "all (default):   Build kernel and bootable.iso"
-	@echo "bootable.iso:    Build bootable.iso. Also builds the kernel and initrd"
+	@echo "all (default):   Build kernel and pepper.iso"
+	@echo "pepper.iso:    Build pepper.iso. Also builds the kernel and initrd"
 	@echo "clean:           Cleans *ALL* build files"
 	@echo "help:            Displays this message"
 	@echo "hdd.img:         Generate the hard disk image"
@@ -61,7 +61,7 @@ help:
 	@echo "kernel:          Build the kernel"
 	@echo "monitor:         Same as QEMU, but loads monitor instead of serial output"
 	@echo "remote:          Same as QEMU, but waits for GDB to conenct before starting"
-	@echo "qemu:            Builds everything and loads QEMU with bootable.iso inserted"
+	@echo "qemu:            Builds everything and loads QEMU with pepper.iso inserted"
 	@echo "userspace:       Build and install the userspace"
 	@echo ""
 	@echo "Unrecognized options will be automatically passed through to Quark"
@@ -71,13 +71,13 @@ initrd: hdd/boot/initrd.tar
 
 kernel: hdd/boot/quark.kernel
 
-monitor: initrd bootable.iso hdd.img
+monitor: initrd pepper.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
 
-remote: initrd bootable.iso hdd.img
+remote: initrd pepper.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL) $(QEMU_REMOTE)
 
-qemu: initrd bootable.iso hdd.img
+qemu: initrd pepper.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
 
 userspace: FORCE

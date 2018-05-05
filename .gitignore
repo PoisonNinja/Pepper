@@ -2,7 +2,7 @@
 toolchain/local
 
 # Files
-bootable.iso
+pepper.iso
 hdd.img
 
 # sysroot
