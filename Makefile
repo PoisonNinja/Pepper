@@ -52,8 +52,14 @@ hdd.img: $(HDD)
 
 help:
 	@echo "======= Pepper build system help ======"
+	@echo "By default, Pepper assumes x86_64. To change architecture, set ARCH env variable"
+	@echo "Supported architectures:"
+	@echo " * x86_64"
+	@echo " * i386 (actually i686 but qemu requires i386"
+	@echo "Current architecture: $(ARCH)"
+	@echo
 	@echo "all (default):   Build kernel and pepper.iso"
-	@echo "pepper.iso:    Build pepper.iso. Also builds the kernel and initrd"
+	@echo "pepper.iso:      Build pepper.iso. Also builds the kernel and initrd"
 	@echo "clean:           Cleans *ALL* build files"
 	@echo "help:            Displays this message"
 	@echo "hdd.img:         Generate the hard disk image"
