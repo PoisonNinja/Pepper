@@ -11,7 +11,7 @@ NEWLIB=true
 for i in "$@"
 do
 case $i in
-    --arch=*|--architecture=*)
+    --architecture=*)
     ARCH="${i#*=}"
     shift # past argument=value
     ;;
@@ -32,11 +32,11 @@ case $i in
     shift
     ;;
     -h|--help)
-    echo "--arch=|--architecture=: Set architecture"
-    echo "-f|--force: Force overwrite existing build folders"
-    echo "--kernel_args=: Arguments for kernel CMake"
-    echo "--userspace_args=: Arguments for userspace CMake"
-    echo "--no-newlib: Skip newlib rebuild"
+    echo "    --architecture=       Set architecture"
+    echo "-f, --force               Force overwrite existing build folders"
+    echo "    --kernel_args=        Arguments for kernel CMake"
+    echo "    --userspace_args=     Arguments for userspace CMake"
+    echo "    --no-newlib           Skip newlib rebuild"
     exit 0
     ;;
 esac
