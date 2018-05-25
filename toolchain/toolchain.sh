@@ -152,6 +152,13 @@ then
                 echo "EFI system detected. Installing grub-pc-bin..."
                 echo ""
                 sudo apt install grub-pc-bin
+            # WSL is also missing BIOS boot files
+            elif grep -q Microsoft /proc/version
+            then
+                echo ""
+                echo "Windows Subsystem for Linux detected. Installing grub-pc-bin..."
+                echo ""
+                sudo apt install grub-pc-bin
             fi
         elif [[ "$HOST_OS" == "Darwin" ]]
         then
