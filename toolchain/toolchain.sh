@@ -91,6 +91,17 @@ do
             LOCAL_NEWLIB="$2"
             shift
             ;;
+        --help)
+            echo "Usage: toolchain.sh [options]"
+            echo ""
+            echo "--skip-dependencies           Skip installing dependencies"
+            echo "--skip-binutils               Skip building binutils"
+            echo "--skip-gcc                    Skip building GCC, libgcc, libstdc++"
+            echo "--skip-newlib                 Skip installing headers and building newlib"
+            echo "--local-newlib [file path]    Use local copy of newlib archive"
+            echo "--help                        Display this help message"
+            exit 0
+            ;;
     esac
     shift
 done
