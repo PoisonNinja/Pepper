@@ -39,6 +39,10 @@ case $i in
     echo "    --no-newlib           Skip newlib rebuild"
     exit 0
     ;;
+    *)
+    echo "Unknown option $i. Use -h/--help for usage"
+    exit 1
+    ;;
 esac
 done
 
