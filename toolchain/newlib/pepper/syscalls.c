@@ -3,6 +3,7 @@
 #include <sys/errno.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
+#include <sys/signal.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
@@ -98,3 +99,8 @@ ssize_t write(int file, char *ptr, int len)
     return syscall(SYS_write, file, ptr, len, 0, 0);
 }
 int gettimeofday(struct timeval *__restrict__ p, void *__restrict__ tz);
+
+int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)
+{
+    return syscall(SYS_sigaction, signum, act, oldact, 0, 0);
+}
