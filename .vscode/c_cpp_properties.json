@@ -14,7 +14,7 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
             "cppStandard": "c++11"
         },
@@ -32,7 +32,7 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
             "cppStandard": "c++11"
         },
@@ -49,7 +49,7 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-gcc -fno-exceptions",
+            "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
             "cppStandard": "c++11"
         }
