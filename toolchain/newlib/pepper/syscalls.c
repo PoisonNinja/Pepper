@@ -64,7 +64,11 @@ int isatty(int file)
     // Always return as a TTY
     return 1;
 }
-int kill(int pid, int sig);
+int kill(pid_t pid, int sig)
+{
+    return syscall(SYS_kill, pid, sig, 0, 0, 0);
+}
+
 int link(char *old, char *new);
 int lseek(int file, int offset, int whence)
 {
