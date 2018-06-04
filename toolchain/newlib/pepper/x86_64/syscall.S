@@ -8,7 +8,7 @@ syscall:
     mov %rsi, %rdi
     mov %rdx, %rsi
     mov %rcx, %rdx
-    mov %r8, %rcx
+    mov %r8, %r10
     mov %r9, %r8
     syscall
     pop %r11
