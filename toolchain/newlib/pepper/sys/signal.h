@@ -92,6 +92,9 @@ struct sigaction {
 #define sigfillset(what) (*(what) = ~(0), 0)
 #define sigismember(what, sig) (((*(what)) & (1 << (sig))) != 0)
 
+int kill(pid_t, int);
+int sigaction(int, const struct sigaction *, struct sigaction *);
+
 #ifdef __cplusplus
 }
 #endif
