@@ -10,6 +10,7 @@
 #define SYS_mmap 9
 #define SYS_mprotect 10
 #define SYS_munmap 11
+#define SYS_sigprocmask 14
 #define SYS_sigaction 13
 #define SYS_sigreturn 15
 #define SYS_getpid 39
