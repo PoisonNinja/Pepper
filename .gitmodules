@@ -3,4 +3,4 @@
 	url = https://github.com/PoisonNinja/mint.git
 [submodule "quark"]
 	path = quark
-	url = https://github.com/PoisonNinja/quark.git
+	url = https://gitlab.com/PoisonNinja/quark.git
