@@ -108,3 +108,8 @@ int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)
 {
     return syscall(SYS_sigaction, signum, act, oldact, 0, 0);
 }
+
+int sigpending(sigset_t *set)
+{
+    return syscall(SYS_sigpending, set, 0, 0, 0, 0);
+}
