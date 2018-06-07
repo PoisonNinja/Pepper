@@ -113,3 +113,8 @@ int sigpending(sigset_t *set)
 {
     return syscall(SYS_sigpending, set, 0, 0, 0, 0);
 }
+
+int sigaltstack(const stack_t *ss, stack_t *oldss)
+{
+    return syscall(SYS_sigaltstack, ss, oldss, 0, 0, 0);
+}

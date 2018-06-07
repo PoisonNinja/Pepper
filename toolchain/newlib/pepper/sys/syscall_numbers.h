@@ -19,3 +19,4 @@
 #define SYS_exit 60
 #define SYS_kill 62
 #define SYS_sigpending 127
+#define SYS_sigaltstack 131

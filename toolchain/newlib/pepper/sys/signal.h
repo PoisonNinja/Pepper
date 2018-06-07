@@ -58,7 +58,12 @@ extern "C" {
 #define SI_MESGQ 5
 
 #define SA_NOCLDSTOP 1
-#define SA_SIGINFO 2
+#define SA_ONSTACK 8
+#define SA_RESETHAND 16
+#define SA_SIGINFO 128
+
+#define SS_ONSTACK 1
+#define SS_DISABLE 2
 
 #define SIG_SETMASK 0
 #define SIG_BLOCK 1
@@ -91,6 +96,12 @@ struct sigaction {
     int sa_flags;
 };
 
+typedef struct {
+    void *ss_sp;    /* Base address of stack */
+    int ss_flags;   /* Flags */
+    size_t ss_size; /* Number of bytes in stack */
+} stack_t;
+
 #define sigaddset(what, sig) (*(what) |= (1 << (sig)), 0)
 #define sigdelset(what, sig) (*(what) &= ~(1 << (sig)), 0)
 #define sigemptyset(what) (*(what) = 0, 0)
@@ -99,6 +110,7 @@ struct sigaction {
 
 int kill(pid_t, int);
 int sigaction(int, const struct sigaction *, struct sigaction *);
+int sigaltstack(const stack_t *, stack_t *);
 
 #ifdef __cplusplus
 }
