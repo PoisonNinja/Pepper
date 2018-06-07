@@ -39,12 +39,16 @@ int main(int argc, char** argv)
             };
             execve("/sbin/signal", argv, envp);
         } else {
+            char* stack = malloc(4096);
+            stack_t ss = {.ss_size = 4096, .ss_sp = stack, .ss_flags = 0};
             printf("[init] Registering signal handler...\n");
             struct sigaction sa = {
-                .sa_handler = &handler, .sa_mask = 0, .sa_flags = 0};
-            struct sigaction oldsa;
-            sigaction(SIGALRM, &sa, &oldsa);
-            raise(SIGALRM);
+                .sa_handler = &handler,
+                .sa_mask = 0,
+                .sa_flags = SA_ONSTACK,
+            };
+            sigaltstack(&ss, NULL);
+            sigaction(SIGALRM, &sa, NULL);
             printf("[init] Registered signal handler\n");
             printf("[init] Awaiting SIGALRM...\n");
             while (!got_alarm)
