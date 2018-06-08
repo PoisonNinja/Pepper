@@ -1,14 +1,20 @@
 #!/bin/bash
 
+# When cd is aliased or is a function (such as when RVM is installed),
+# cd doesn't behave properly. To bypass this by forcing Bash to use the
+# builtin, use command. Prefixing with a backslash is insufficient since
+# backslashes only ignore aliases, and unalias cd won't work because it is
+# a function not an alias
+
 function realpath() {
-    cd $1; pwd
+    command cd $1; pwd
 }
 
 function croot() {
-    cd $ROOT
+    command cd $ROOT
 }
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( command cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOOLCHAIN=$(realpath "$DIR/../toolchain")
 
 export ROOT=$(realpath "$DIR/..")
