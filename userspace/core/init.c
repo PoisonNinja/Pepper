@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ucontext.h>
 #include <unistd.h>
 
 static int got_alarm = 0;
 
-void handler(int signum)
+void handler(int signum, siginfo_t* siginfo, void* ucontext)
 {
     got_alarm = 1;
 }
@@ -43,9 +44,9 @@ int main(int argc, char** argv)
             stack_t ss = {.ss_size = 4096, .ss_sp = stack, .ss_flags = 0};
             printf("[init] Registering signal handler...\n");
             struct sigaction sa = {
-                .sa_handler = &handler,
+                .sa_sigaction = &handler,
                 .sa_mask = 0,
-                .sa_flags = SA_ONSTACK,
+                .sa_flags = SA_ONSTACK | SA_SIGINFO,
             };
             sigaltstack(&ss, NULL);
             sigaction(SIGALRM, &sa, NULL);
