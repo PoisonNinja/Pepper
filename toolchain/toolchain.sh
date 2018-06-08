@@ -11,7 +11,6 @@ TARGET="$TARGET_ARCH-pepper"
 
 GCCVER="gcc-7.3.0"
 BINUTILSVER="binutils-2.30"
-NEWLIBVER="newlib-3.0.0"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
 NEWLIBURL="ftp://sourceware.org/pub/newlib/$NEWLIBVER.tar.gz"
@@ -22,8 +21,6 @@ SKIP_DEPS=false
 SKIP_GCC=false
 SKIP_BINUTILS=false
 SKIP_NEWLIB=false
-
-LOCAL_NEWLIB=""
 
 # Useful functions
 function cleanup() {
@@ -87,10 +84,6 @@ do
         --skip-newlib)
             SKIP_NEWLIB=true
             ;;
-        --local-newlib)
-            LOCAL_NEWLIB="$2"
-            shift
-            ;;
         --help)
             echo "Usage: toolchain.sh [options]"
             echo ""
@@ -98,7 +91,6 @@ do
             echo "--skip-binutils               Skip building binutils"
             echo "--skip-gcc                    Skip building GCC, libgcc, libstdc++"
             echo "--skip-newlib                 Skip installing headers and building newlib"
-            echo "--local-newlib [file path]    Use local copy of newlib archive"
             echo "--help                        Display this help message"
             exit 0
             ;;
@@ -243,21 +235,12 @@ export PATH="$PREFIX/bin:$PATH"
 
 if [[ $SKIP_NEWLIB == false ]]
 then
-    if [[ ! -z "$LOCAL_NEWLIB" ]]
-    then
-        echo "Using local newlib: $LOCAL_NEWLIB"
-        cp $LOCAL_NEWLIB ./newlib.tar.gz || bail
-    else
-        download $NEWLIBURL newlib.tar.gz || bail
-    fi
-    extract newlib.tar.gz || bail
-    patchdir $NEWLIBVER $DIR/$NEWLIBVER.patch
-    cp -r $DIR/newlib/pepper $NEWLIBVER/newlib/libc/sys/pepper
-    cp $DIR/newlib/pepper/$TARGET_ARCH/* $NEWLIBVER/newlib/libc/sys/pepper
-    cp $DIR/newlib/pepper/$TARGET_ARCH/sys/* $NEWLIBVER/newlib/libc/sys/pepper/sys/
+    git clone https://gitlab.com/PoisonNinja/newlib.git
+    cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/* newlib/newlib/libc/sys/pepper
+    cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/pepper/sys/
     mkdir build-newlib
     pushd build-newlib > /dev/null
-    ../$NEWLIBVER/configure --prefix="/usr" --target="$TARGET" || bail
+    ../newlib/configure --prefix="/usr" --target="$TARGET" || bail
     make all || bail
     make DESTDIR="$SYSROOT" install || bail
     # Work around a newlib bug
