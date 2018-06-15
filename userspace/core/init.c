@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -7,6 +8,8 @@
 #include <unistd.h>
 
 static int got_alarm = 0;
+__thread int a = 0;
+__thread int b = 3;
 
 void handler(int signum, siginfo_t* siginfo, void* ucontext)
 {
@@ -15,14 +18,15 @@ void handler(int signum, siginfo_t* siginfo, void* ucontext)
 
 int main(int argc, char** argv)
 {
-    open("/dev/tty", O_RDONLY);  // stdin
-    open("/dev/tty", O_WRONLY);  // stdout
-    open("/dev/tty", O_WRONLY);  // stderr
+    open("/dev/tty", O_RDONLY);            // stdin
+    open("/dev/tty", O_WRONLY);            // stdout
+    int ret = open("/dev/tty", O_WRONLY);  // stderr
     printf("[init] Hello from userspace!\n");
     printf("[init] %d arguments passed in\n", argc);
     for (int i = 0; i < argc; i++) {
         printf("[init] #%d: %s\n", i, argv[i]);
     }
+    printf("Thread local variables: %d %d\n", a, b);
     pid_t pid = fork();
     if (pid) {
         printf("[init] parent: My child's PID is %d\n", pid);
@@ -53,7 +57,7 @@ int main(int argc, char** argv)
             printf("[init] Registered signal handler\n");
             printf("[init] Awaiting SIGALRM...\n");
             while (!got_alarm)
-                printf("[init] No alarm yet\n");
+                ;
             printf("[init] Alarm recieved! Exiting!\n");
             return 0;
         }
