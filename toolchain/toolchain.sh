@@ -235,7 +235,7 @@ export PATH="$PREFIX/bin:$PATH"
 
 if [[ $SKIP_NEWLIB == false ]]
 then
-    git clone https://gitlab.com/PoisonNinja/newlib.git
+    git clone --depth=1 https://gitlab.com/PoisonNinja/newlib.git
     cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/* newlib/newlib/libc/sys/pepper
     cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/pepper/sys/
     mkdir build-newlib
