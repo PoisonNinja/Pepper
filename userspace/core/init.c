@@ -18,9 +18,9 @@ void handler(int signum, siginfo_t* siginfo, void* ucontext)
 
 int main(int argc, char** argv)
 {
-    open("/dev/tty", O_RDONLY);            // stdin
-    open("/dev/tty", O_WRONLY);            // stdout
-    int ret = open("/dev/tty", O_WRONLY);  // stderr
+    open("/dev/tty", O_RDONLY);  // stdin
+    open("/dev/tty", O_WRONLY);  // stdout
+    open("/dev/tty", O_WRONLY);  // stderr
     printf("[init] Hello from userspace!\n");
     printf("[init] %d arguments passed in\n", argc);
     for (int i = 0; i < argc; i++) {
