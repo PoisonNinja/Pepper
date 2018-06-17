@@ -13,6 +13,9 @@ __thread int b = 3;
 
 void handler(int signum, siginfo_t* siginfo, void* ucontext)
 {
+    (void)signum;
+    (void)siginfo;
+    (void)ucontext;
     got_alarm = 1;
 }
 
