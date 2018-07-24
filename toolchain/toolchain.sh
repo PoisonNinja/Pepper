@@ -9,8 +9,8 @@ SYSROOT=$(cd $DIR/../hdd; pwd)
 TARGET_ARCH="${TARGET_ARCH:-x86_64}"
 TARGET="$TARGET_ARCH-pepper"
 
-GCCVER="gcc-7.3.0"
-BINUTILSVER="binutils-2.30"
+GCCVER="gcc-8.1.0"
+BINUTILSVER="binutils-2.31"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
 NEWLIBURL="ftp://sourceware.org/pub/newlib/$NEWLIBVER.tar.gz"
