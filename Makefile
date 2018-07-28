@@ -8,7 +8,7 @@ QEMU := qemu-system-$(ARCH)
 
 QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
-QEMU_ACCEL := -M accel=kvm:hvf:tcg
+QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -s -S
