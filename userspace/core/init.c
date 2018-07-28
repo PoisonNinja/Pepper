@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/sysmacros.h>
 #include <sys/ucontext.h>
 #include <unistd.h>
 
@@ -21,6 +22,7 @@ void handler(int signum, siginfo_t* siginfo, void* ucontext)
 
 int main(int argc, char** argv)
 {
+    mknod("/dev/tty", 0644 | S_IFCHR, makedev(0, 0));
     open("/dev/tty", O_RDONLY);  // stdin
     open("/dev/tty", O_WRONLY);  // stdout
     open("/dev/tty", O_WRONLY);  // stderr
