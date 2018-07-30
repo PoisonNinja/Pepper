@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/ucontext.h>
 #include <unistd.h>
@@ -30,10 +31,6 @@ int main(int argc, char** argv)
     open("/dev/keyboard", O_RDONLY);  // stdin
     open("/dev/tty", O_WRONLY);       // stdout
     open("/dev/tty", O_WRONLY);       // stderr
-    char buffer[1024] = {0};
-    printf("Please enter 5 characters:\n");
-    read(0, buffer, 1024);
-    printf("Read %s\n", buffer);
     printf("[init] Hello from userspace!\n");
     printf("[init] %d arguments passed in\n", argc);
     for (int i = 0; i < argc; i++) {
