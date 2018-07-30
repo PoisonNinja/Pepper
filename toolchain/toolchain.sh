@@ -199,6 +199,7 @@ mkdir -p "$SYSROOT/usr/include"
 
 echo
 echo "Installing tools to $DIR/local"
+echo "System root will be at $SYSROOT"
 echo
 
 if [[ $SKIP_BINUTILS == false ]]
