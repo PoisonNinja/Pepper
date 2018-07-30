@@ -22,10 +22,18 @@ void handler(int signum, siginfo_t* siginfo, void* ucontext)
 
 int main(int argc, char** argv)
 {
+    // Create the terminal device
+    // Eventually this will be handled by our own udev implementation, but
+    // for now init will be responsible for initializing it
     mknod("/dev/tty", 0644 | S_IFCHR, makedev(0, 0));
-    open("/dev/tty", O_RDONLY);  // stdin
-    open("/dev/tty", O_WRONLY);  // stdout
-    open("/dev/tty", O_WRONLY);  // stderr
+    mknod("/dev/keyboard", 0644 | S_IFCHR, makedev(1, 0));
+    open("/dev/keyboard", O_RDONLY);  // stdin
+    open("/dev/tty", O_WRONLY);       // stdout
+    open("/dev/tty", O_WRONLY);       // stderr
+    char buffer[1024] = {0};
+    printf("Please enter 5 characters:\n");
+    read(0, buffer, 1024);
+    printf("Read %s\n", buffer);
     printf("[init] Hello from userspace!\n");
     printf("[init] %d arguments passed in\n", argc);
     for (int i = 0; i < argc; i++) {
