@@ -77,6 +77,9 @@ initrd: hdd/boot/initrd.tar
 
 kernel: hdd/boot/quark.kernel
 
+modules: FORCE
+	@cmake --build modules/build --target install
+
 monitor: initrd pepper.iso hdd.img
 	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
 
@@ -90,7 +93,7 @@ userspace: FORCE
 	@cmake --build userspace/build --target install
 
 # Internal targets
-hdd/boot/initrd.tar: userspace $(HDD)
+hdd/boot/initrd.tar: userspace modules $(HDD)
 	@echo
 	@echo Generating initrd...
 	@echo
