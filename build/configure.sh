@@ -106,3 +106,19 @@ pushd $DIR/../userspace/build > /dev/null
 cmake .. $USERSPACE_ARGS
 popd > /dev/null
 
+
+echo "Setting up modules..."
+if (shopt -s nullglob dotglob; f=($DIR/../modules/build/*); ((${#f[@]})))
+then
+    if [[ $FORCE != true ]]
+    then
+        echo "Modules build files exist already and -f/--force was not supplied. Aborting!"
+        exit 1
+    else
+        rm -rf $DIR/../modules/build/ > /dev/null 2>&1
+    fi
+fi
+mkdir $DIR/../modules/build
+pushd $DIR/../modules/build > /dev/null
+cmake .. $KERNEL_ARGS
+popd > /dev/null
