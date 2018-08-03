@@ -62,7 +62,7 @@ project(Quark CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 # -mcmodel=large is necessary to disable GOT/PLT
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-r,-T ${ARCH_PATH}/module.lds -mcmodel=large -Wall -Wextra -Wno-missing-field-initializers -ffreestanding -fno-builtin -fno-rtti -fno-exceptions -fno-stack-protector -fdiagnostics-color=always -mgeneral-regs-only")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcmodel=large -Wall -Wextra -Wno-missing-field-initializers -ffreestanding -fno-builtin -fno-rtti -fno-exceptions -fno-stack-protector -fdiagnostics-color=always -mgeneral-regs-only")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -DQUARK_DEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DQUARK_RELEASE")
 message(STATUS "CXXFLAGS: " ${CMAKE_CXX_FLAGS})
