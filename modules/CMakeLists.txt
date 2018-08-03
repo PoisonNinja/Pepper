@@ -31,13 +31,13 @@ if(NOT EXISTS ${ARCH_INCLUDE_PATH})
 endif()
 message(STATUS "Architecture include folder: " ${ARCH_INCLUDE_PATH})
 
-# if(NOT DEFINED ${PLATFORM_FILE})
-#     set(PLATFORM_FILE ${ARCH_PATH}/platform.cmake)
-# endif()
-# if(NOT EXISTS ${PLATFORM_FILE})
-#     message(FATAL_ERROR "Platform file does not exist: " ${PLATFORM_FILE})
-# endif()
-# message(STATUS "Platform file: " ${PLATFORM_FILE})
+if(NOT DEFINED ${PLATFORM_FILE})
+    set(PLATFORM_FILE ${ARCH_PATH}/module.cmake)
+endif()
+if(NOT EXISTS ${PLATFORM_FILE})
+    message(FATAL_ERROR "Platform file does not exist: " ${PLATFORM_FILE})
+endif()
+message(STATUS "Platform file: " ${PLATFORM_FILE})
 
 if(NOT DEFINED SYSROOT)
     set(SYSROOT "${CMAKE_SOURCE_DIR}/../hdd")
@@ -57,17 +57,17 @@ message(STATUS "CXX Compiler: " ${CXX})
 
 project(Quark CXX)
 
-# include(${PLATFORM_FILE})
+include(${PLATFORM_FILE})
 
 set(CMAKE_CXX_STANDARD 11)
 
 # -mcmodel=large is necessary to disable GOT/PLT
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcmodel=large -Wall -Wextra -Wno-missing-field-initializers -ffreestanding -fno-builtin -fno-rtti -fno-exceptions -fno-stack-protector -fdiagnostics-color=always -mgeneral-regs-only")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-missing-field-initializers -ffreestanding -fno-builtin -fno-rtti -fno-exceptions -fno-stack-protector -fdiagnostics-color=always -mgeneral-regs-only")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -DQUARK_DEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DQUARK_RELEASE")
 message(STATUS "CXXFLAGS: " ${CMAKE_CXX_FLAGS})
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,-r,-T ${ARCH_PATH}/module.lds -nostdlib")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib")
 message(STATUS "LDFLAGS: " ${CMAKE_EXE_LINKER_FLAGS})
 
 set(INCLUDE_DIRS "${INCLUDE_DIRS} ${KERNEL_PATH}/include/")
