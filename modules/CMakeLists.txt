@@ -82,4 +82,4 @@ message(STATUS "Include directories: " ${INCLUDE_DIRS})
 
 add_executable(test.ko test.cc)
 
-install(TARGETS test.ko DESTINATION ${SYSROOT}/sbin)
+install(TARGETS test.ko DESTINATION ${SYSROOT}/lib/modules)
