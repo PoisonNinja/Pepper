@@ -10,3 +10,4 @@ hdd/boot/initrd.tar
 hdd/boot/*.kernel
 hdd/sbin
 hdd/usr
+hdd/lib
