@@ -10,6 +10,12 @@ int init()
     Log::printk(Log::LogLevel::INFO, "Hello from a module\n");
     return 0;
 }
+
+int fini()
+{
+    Log::printk(Log::LogLevel::INFO, "Good bye from a module\n");
+    return 0;
+}
 }
 
 MODULE_NAME("test");
