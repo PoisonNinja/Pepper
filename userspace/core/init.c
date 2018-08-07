@@ -7,6 +7,10 @@
 #include <sys/sysmacros.h>
 #include <unistd.h>
 
+extern int init_module(void* module_image, unsigned long len,
+                       const char* param_values);
+extern int delete_module(const char* name, int flags);
+
 int main(int argc, char** argv)
 {
     // Create the terminal device
@@ -18,4 +22,12 @@ int main(int argc, char** argv)
     open("/dev/tty", O_WRONLY);       // stdout
     open("/dev/tty", O_WRONLY);       // stderr
     printf("[init] Hello from userspace!\n");
+    int fd = open("/lib/modules/test.ko", O_RDONLY);
+    struct stat st;
+    fstat(fd, &st);
+    printf("Size: %lX\n", st.st_size);
+    char* buffer = malloc(st.st_size);
+    read(fd, buffer, st.st_size);
+    init_module(buffer, st.st_size, "");
+    delete_module("test", 0);
 }
