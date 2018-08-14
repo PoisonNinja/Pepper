@@ -256,7 +256,26 @@ fi
 if [[ $SKIP_GCC == false ]]
 then
     pushd build-gcc > /dev/null
-    make all-target-libgcc || bail
+    # x86_64 needs some special treatment
+    if [[ "$TARGET_ARCH" == "x86_64" ]]
+    then
+        # libgcc by default builds with red zone, but our kernel isn't. This may
+        # cause strange errors if we get an interrupt while executing libgcc
+        # code.
+        #
+        # By default, libgcc builds with mcmodel=small which causes relocation
+        # errors when linking since our kernel is built with mcmodel=kernel.
+        LIBGCC_CFLAGS="-mcmodel=kernel -mno-red-zone"
+        # This will fail with an error about how PIC code is not supported with
+        # mcmodel code
+        make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || true
+        # Patch the Makefile to remove PIC (https://wiki.osdev.org/Building_libgcc_for_mcmodel%3Dkernel)
+        sed -i 's/PICFLAG/DISABLED_PICFLAG/g' $TARGET/libgcc/Makefile
+        # Continue the build
+        make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || bail
+    else
+        make all-target-libgcc || bail
+    fi
     make install-target-libgcc || bail
     make all-target-libstdc++-v3 || bail
     make install-target-libstdc++-v3 || bail
