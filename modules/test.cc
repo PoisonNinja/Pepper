@@ -4,6 +4,17 @@
 #include <lib/printf.h>
 #include <lib/string.h>
 
+class Test
+{
+public:
+    Test()
+    {
+        Log::printk(Log::LogLevel::INFO, "Test instance created\n");
+    }
+};
+
+Test test;
+
 extern "C" {
 int init()
 {
