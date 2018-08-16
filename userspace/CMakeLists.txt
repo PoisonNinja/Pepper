@@ -1,37 +1,31 @@
 # Required for target_sources
 cmake_minimum_required(VERSION 3.1)
 
+# Block in-source builds to prevent the directory from getting cluttered up
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source builds are not allowed.")
 endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
+# We're targeting our own operating system that CMake doesn't know about.
+# Use a non-generic name would cause CMake to inject various flags which
+# usually breaks builds
 set(CMAKE_SYSTEM_NAME       Generic)
 set(CMAKE_SYSTEM_VERSION    1)
 
-if(NOT DEFINED ARCH)
-    set(ARCH "x86_64")
-endif()
+set(ARCH "x86_64" CACHE STRING "Architecture to build for")
 message(STATUS "Architecture: " ${ARCH})
 
-find_program(C ${ARCH}-pepper-gcc)
-if(NOT C)
+find_program(CMAKE_C_COMPILER ${ARCH}-pepper-gcc)
+if(NOT CMAKE_C_COMPILER)
     message(FATAL_ERROR "Compiler not found! Run the \
                          toolchain script in Pepper to build a toolchain. If \
                          you have already built it, make sure that you have run \
                          envsetup.sh before configuring CMake.")
 endif()
 
-# Skip compiler checks since we're targeting ELF binaries, and thus those
-# would fail on MacOS with the error `file was built for unsupported file format`,
-# which makes sense since MacOS uses MachO. Unfortunately, the way that CMake
-# does the compiler checks means that it performs the compiler checks without
-# letting us inject flags to force Clang to generate ELF binaries
-set(CMAKE_C_COMPILER ${C})
+message(STATUS "C Compiler: " ${CMAKE_C_COMPILER})
 
-message(STATUS "C Compiler: " ${CLANG})
-
-enable_language(ASM_NASM)
-
+# Set SYSROOT so we know where to install the binaries
 if(NOT DEFINED SYSROOT)
     set(SYSROOT "${CMAKE_SOURCE_DIR}/../hdd")
 endif()
@@ -39,8 +33,11 @@ message(STATUS "Sysroot: " ${SYSROOT})
 
 project(Quark C)
 
+# C11!
 set(CMAKE_C_STANDARD 11)
 
+# -fdiagnostics-color=always is needed because GCC thinks that we're piping
+# it's output somewhere and tries to remove color by default
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fdiagnostics-color=always")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2 -DQUARK_DEBUG")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DQUARK_RELEASE")
