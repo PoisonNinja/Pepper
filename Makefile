@@ -42,6 +42,7 @@ clean:
 	$(RM) pepper.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
 	@cmake --build quark/build --target clean
 	@cmake --build userspace/build --target clean
+	@cmake --build modules/build --target clean
 
 hdd.img: $(HDD)
 	@echo
