@@ -8,8 +8,6 @@ endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 set(CMAKE_SYSTEM_NAME       Generic)
 set(CMAKE_SYSTEM_VERSION    1)
 
-enable_language(ASM_NASM)
-
 set(ARCH "x86_64" CACHE STRING "Architecture to build for")
 message(STATUS "Architecture: " ${ARCH})
 
@@ -64,6 +62,8 @@ message(STATUS "CXX Compiler: " ${CXX})
 project(Quark CXX)
 
 include(${PLATFORM_FILE})
+
+enable_language(ASM_NASM)
 
 set(CMAKE_CXX_STANDARD 11)
 
