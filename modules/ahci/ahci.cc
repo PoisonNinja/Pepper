@@ -20,12 +20,10 @@ private:
 
 AHCIDriver::AHCIDriver()
 {
-    Log::printk(Log::LogLevel::INFO, "ahci: Hello!\n");
     this->filter.class_id    = 1;
     this->filter.subclass_id = 6;
     this->major              = Filesystem::locate_class(Filesystem::BLK);
     Filesystem::register_class(Filesystem::BLK, this->major);
-    Log::printk(Log::LogLevel::INFO, "ahci: Major %llX\n", this->major);
 }
 
 AHCIDriver::~AHCIDriver()
@@ -35,7 +33,7 @@ AHCIDriver::~AHCIDriver()
 bool AHCIDriver::probe(PCI::Device* dev)
 {
     dev->claim();
-    AHCIController* ahci = new AHCIController(dev);
+    AHCIController* ahci = new AHCIController(dev, this->major);
     ahci->init();
     return true;
 }

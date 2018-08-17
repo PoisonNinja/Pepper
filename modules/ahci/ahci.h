@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fs/block.h>
+#include <mm/dma.h>
 #include <types.h>
 
 typedef enum {
@@ -93,15 +94,98 @@ constexpr uint32_t PXCMD_ICC(uint32_t val)
 #define AHCI_TYPE_SEMB 0xC33C0101
 #define AHCI_TYPE_PM 0x96690101
 
+#define AHCI_PRDT_MAX_MEMORY 0x1000
+#define AHCI_BLOCK_SIZE 512
+
+struct hba_port {
+    uint32_t command_list_base_low;
+    uint32_t command_list_base_high;
+    uint32_t fis_base_low;
+    uint32_t fis_base_high;
+    uint32_t interrupt_status;
+    uint32_t interrupt_enable;
+    uint32_t command;
+    uint32_t reserved_0;
+    uint32_t task_file_data;
+    uint32_t signature;
+    uint32_t sata_status;
+    uint32_t sata_control;
+    uint32_t sata_error;
+    uint32_t sata_active;
+    uint32_t command_issue;
+    uint32_t sata_notification;
+    uint32_t fis_based_switch_control;
+    uint32_t reserved_1[11];
+    uint32_t vendor[4];
+} __attribute__((packed));
+
 constexpr uint32_t GHC_AE   = 1U << 31;
 constexpr uint32_t GHC_MRSM = 1U << 2;
 constexpr uint32_t GHC_IE   = 1U << 1;
 constexpr uint32_t GHC_HR   = 1U << 0;
 
-#define AHCI_PRDT_MAX_MEMORY 0x1000
-#define AHCI_BLOCK_SIZE 512
+constexpr uint32_t CAP_S64A = 1U << 31;
+constexpr uint32_t capability_ncs(uint32_t capability)
+{
+    return (capability & 0x1F00) >> 8;
+}
 
-struct fis_reg_host_to_device {
+struct hba_memory {
+    uint32_t capability;
+    uint32_t global_host_control;
+    uint32_t interrupt_status;
+    uint32_t port_implemented;
+    uint32_t version;
+    uint32_t ccc_control;
+    uint32_t ccc_ports;
+    uint32_t em_location;
+    uint32_t em_control;
+    uint32_t ext_capabilities;
+    uint32_t bohc;
+    uint8_t reserved[0xA0 - 0x2C];
+    uint8_t vendor[0x100 - 0xA0];
+    struct hba_port ports[32];
+} __attribute__((packed));
+
+struct hba_received_fis {
+    uint8_t fis_ds[0x1C];
+    uint8_t pad_0[0x4];
+    uint8_t fis_ps[0x14];
+    uint8_t pad_1[0xC];
+    uint8_t fis_r[0x14];
+    uint8_t pad_2[0x4];
+    uint8_t fis_sdb[0x8];
+    uint8_t ufis[0x40];
+    uint8_t reserved[0x60];
+} __attribute__((packed));
+
+struct hba_command_header {
+    uint8_t fis_length : 5;
+    uint8_t atapi : 1;
+    uint8_t write : 1;
+    uint8_t prefetchable : 1;
+    uint8_t reset : 1;
+    uint8_t bist : 1;
+    uint8_t clear_busy_upon_r_ok : 1;
+    uint8_t reserved_0 : 1;
+    uint8_t pmport : 4;
+    uint16_t prdt_len;
+    uint32_t prdb_count;
+    uint32_t command_table_base_low;
+    uint32_t command_table_base_high;
+    uint32_t reserved_1[4];
+} __attribute__((packed));
+
+struct hba_prdt_entry {
+    uint32_t data_base_low;
+    uint32_t data_base_high;
+    uint32_t reserved_0;
+    uint32_t byte_count : 22;
+    uint32_t reserved_1 : 9;
+    uint32_t interrupt_on_complete : 1;
+} __attribute__((packed));
+
+struct fis_h2d {
     uint8_t type;
     uint8_t pmport : 4;
     uint8_t reserved_0 : 3;
@@ -121,172 +205,15 @@ struct fis_reg_host_to_device {
     uint8_t count_high;
     uint8_t icc;
     uint8_t control;
-    uint8_t reserved_1[4];
-} __attribute__((packed));
-
-struct fis_reg_device_to_host {
-    uint8_t type;
-    uint8_t pmport : 4;
-    uint8_t reserved_0 : 2;
-    uint8_t interrupt : 1;
-    uint8_t reserved_1 : 1;
-    uint8_t status;
-    uint8_t error;
-    uint8_t lba0;
-    uint8_t lba1;
-    uint8_t lba2;
-    uint8_t device;
-    uint8_t lba3;
-    uint8_t lba4;
-    uint8_t lba5;
-    uint8_t reserved_2;
-    uint8_t count_low;
-    uint8_t count_high;
-    uint8_t reserved_3[2];
-    uint8_t reserved_4[4];
-} __attribute__((packed));
-
-struct fis_data {
-    uint8_t type;
-    uint8_t pmport : 4;
-    uint8_t reserved_0 : 4;
-    uint8_t reserved_1[2];
-    uint32_t data[1];
-} __attribute__((packed));
-
-struct fis_pio_setup {
-    uint8_t type;
-    uint8_t pmport : 4;
-    uint8_t reserved_0 : 1;
-    uint8_t direction : 1;
-    uint8_t interrupt : 1;
-    uint8_t reserved_1 : 1;
-    uint8_t status;
-    uint8_t error;
-    uint8_t lba0;
-    uint8_t lba1;
-    uint8_t lba2;
-    uint8_t device;
-    uint8_t lba3;
-    uint8_t lba4;
-    uint8_t lba5;
-    uint8_t reserved2;
-    uint8_t count_low;
-    uint8_t count_high;
-    uint8_t reserved3;
-    uint8_t e_status;
-    uint16_t transfer_count;
-    uint8_t reserved_[2];
-} __attribute__((packed));
-
-struct fis_dma_setup {
-    uint8_t type;
-    uint8_t pmport : 4;
-    uint8_t reserved_0 : 1;
-    uint8_t direction : 1;
-    uint8_t interrupt : 1;
-    uint8_t auto_activate : 1;
-    uint8_t reserved_1[2];
-    uint64_t dma_buffer_id;
-    uint32_t reserved_2;
-    uint32_t dma_buffer_offset;
-    uint32_t transfer_count;
-    uint32_t reserved_3;
-} __attribute__((packed));
-
-struct fis_dev_bits {
-    volatile uint8_t type;
-    volatile uint8_t pmport : 4;
-    volatile uint8_t reserved0 : 2;
-    volatile uint8_t interrupt : 1;
-    volatile uint8_t notification : 1;
-    volatile uint8_t status;
-    volatile uint8_t error;
-    volatile uint32_t protocol;
-} __attribute__((packed));
-
-struct hba_port {
-    volatile uint32_t command_list_base_low;
-    volatile uint32_t command_list_base_high;
-    volatile uint32_t fis_base_low;
-    volatile uint32_t fis_base_high;
-    volatile uint32_t interrupt_status;
-    volatile uint32_t interrupt_enable;
-    volatile uint32_t command;
-    volatile uint32_t reserved_0;
-    volatile uint32_t task_file_data;
-    volatile uint32_t signature;
-    volatile uint32_t sata_status;
-    volatile uint32_t sata_control;
-    volatile uint32_t sata_error;
-    volatile uint32_t sata_active;
-    volatile uint32_t command_issue;
-    volatile uint32_t sata_notification;
-    volatile uint32_t fis_based_switch_control;
-    volatile uint32_t reserved_1[11];
-    volatile uint32_t vendor[4];
-} __attribute__((packed));
-
-struct hba_memory {
-    volatile uint32_t capability;
-    volatile uint32_t global_host_control;
-    volatile uint32_t interrupt_status;
-    volatile uint32_t port_implemented;
-    volatile uint32_t version;
-    volatile uint32_t ccc_control;
-    volatile uint32_t ccc_ports;
-    volatile uint32_t em_location;
-    volatile uint32_t em_control;
-    volatile uint32_t ext_capabilities;
-    volatile uint32_t bohc;
-    volatile uint8_t reserved[0xA0 - 0x2C];
-    volatile uint8_t vendor[0x100 - 0xA0];
-    volatile struct hba_port ports[1];
-} __attribute__((packed));
-
-struct hba_received_fis {
-    volatile struct fis_dma_setup fis_ds;
-    volatile uint8_t pad_0[4];
-    volatile struct fis_pio_setup fis_ps;
-    volatile uint8_t pad_1[12];
-    volatile struct fis_reg_device_to_host fis_r;
-    volatile uint8_t pad_2[4];
-    volatile struct fis_dev_bits fis_sdb;
-    volatile uint8_t ufis[64];
-    volatile uint8_t reserved[0x100 - 0xA0];
-} __attribute__((packed));
-
-struct hba_command_header {
-    uint8_t fis_length : 5;
-    uint8_t atapi : 1;
-    uint8_t write : 1;
-    uint8_t prefetchable : 1;
-    uint8_t reset : 1;
-    uint8_t bist : 1;
-    uint8_t clear_busy_upon_r_ok : 1;
-    uint8_t reserved_0 : 1;
-    uint8_t pmport : 4;
-    uint16_t prdt_len;
-    volatile uint32_t prdb_count;
-    uint32_t command_table_base_low;
-    uint32_t command_table_base_high;
-    uint32_t reserved_1[4];
-} __attribute__((packed));
-
-struct hba_prdt_entry {
-    uint32_t data_base_low;
-    uint32_t data_base_high;
-    uint32_t reserved_0;
-    uint32_t byte_count : 22;
-    uint32_t reserved_1 : 9;
-    uint32_t interrupt_on_complete : 1;
+    uint32_t reserved_1;
+    uint8_t padding[0x2C];
 } __attribute__((packed));
 
 struct hba_command_table {
-    uint8_t command_fis[64];
-    uint8_t acmd[16];
-    uint8_t reserved[48];
-    struct hba_prdt_entry prdt_entries[1];
+    struct fis_h2d command_fis;
+    uint8_t acmd[0x10];
+    uint8_t reserved[0x30];
+    struct hba_prdt_entry prdt[1];
 } __attribute__((packed));
 
 /*
@@ -332,22 +259,35 @@ namespace PCI
 class Device;
 }
 
+class AHCIController;
+
 class AHCIPort : public Filesystem::BlockDevice
 {
 public:
-    AHCIPort();
+    AHCIPort(AHCIController* c, volatile struct hba_port* port);
     virtual ~AHCIPort() override;
     virtual ssize_t read(uint8_t* buffer, size_t count, off_t offset) override;
     virtual ssize_t write(uint8_t* buffer, size_t count, off_t offset) override;
+
+private:
+    int get_free_slot();
+
+    AHCIController* controller;
+    volatile struct hba_port* port;
+    Memory::DMA::Region fb;
+    Memory::DMA::Region clb;
 };
 
 class AHCIController
 {
 public:
-    AHCIController(PCI::Device* d);
+    AHCIController(PCI::Device* d, dev_t major);
     void init();
 
+    size_t get_ncs();
+
 private:
+    dev_t major;
     AHCIPort* ports[32];
     volatile struct hba_memory* hba;
     PCI::Device* device;
