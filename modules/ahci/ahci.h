@@ -205,12 +205,11 @@ struct fis_h2d {
     uint8_t count_high;
     uint8_t icc;
     uint8_t control;
-    uint32_t reserved_1;
-    uint8_t padding[0x2C];
+    uint8_t reserved_1[0x4];
 } __attribute__((packed));
 
 struct hba_command_table {
-    struct fis_h2d command_fis;
+    uint8_t command_fis[0x40];
     uint8_t acmd[0x10];
     uint8_t reserved[0x30];
     struct hba_prdt_entry prdt[1];
@@ -274,6 +273,7 @@ private:
 
     AHCIController* controller;
     volatile struct hba_port* port;
+    Memory::DMA::Region command_tables[32];
     Memory::DMA::Region fb;
     Memory::DMA::Region clb;
 };
