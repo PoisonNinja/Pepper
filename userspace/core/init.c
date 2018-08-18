@@ -41,7 +41,7 @@ int main(int argc, char** argv)
     free(buffer);
     close(ahci);
 
-    // mknod("/dev/hda", 0644 | S_IFBLK, makedev(0, 0));
-    // int hda = open("/dev/hda", O_RDWR);
-    // read(hda, buffer, 10);
+    mknod("/dev/hda", 0644 | S_IFBLK, makedev(0, 0));
+    int hda = open("/dev/hda", O_RDWR);
+    read(hda, buffer, 10);
 }
