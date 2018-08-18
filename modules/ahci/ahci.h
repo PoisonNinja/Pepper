@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cpu/interrupt.h>
 #include <fs/block.h>
 #include <mm/dma.h>
 #include <types.h>
@@ -268,6 +269,8 @@ public:
     virtual ssize_t read(uint8_t* buffer, size_t count, off_t offset) override;
     virtual ssize_t write(uint8_t* buffer, size_t count, off_t offset) override;
 
+    void handle();
+
 private:
     int get_free_slot();
 
@@ -287,6 +290,10 @@ public:
     size_t get_ncs();
 
 private:
+    void handler();
+    static void raw_handler(int, void* data, struct InterruptContext* ctx);
+    Interrupt::Handler handler_data;
+
     dev_t major;
     AHCIPort* ports[32];
     volatile struct hba_memory* hba;

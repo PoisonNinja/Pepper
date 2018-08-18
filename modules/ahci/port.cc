@@ -127,11 +127,20 @@ ssize_t AHCIPort::write(uint8_t* buffer, size_t count, off_t offset)
 {
 }
 
+void AHCIPort::handle()
+{
+    Log::printk(Log::LogLevel::INFO, "ahci: Handling interrupt\n");
+    uint32_t is = this->port->interrupt_status;
+    if (!is)
+        return;
+
+    // Clear the pending interrupts.
+    this->port->interrupt_status = is;
+}
+
 int AHCIPort::get_free_slot()
 {
     uint32_t slots = this->port->sata_active | this->port->command_issue;
-    volatile struct hba_command_header* base =
-        reinterpret_cast<struct hba_command_header*>(this->clb.virtual_base);
     for (int i = 0; i < this->controller->get_ncs(); i++) {
         if (slots & (1 << i)) {
             return i;

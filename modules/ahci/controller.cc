@@ -7,12 +7,14 @@ AHCIController::AHCIController(PCI::Device* d, dev_t major)
     , ports{}
     , hba{nullptr}
     , device{d}
+    , handler_data{raw_handler, "ahci", this}
 {
 }
 
 void AHCIController::init()
 {
     Log::printk(Log::LogLevel::INFO, "ahci: Initializing AHCI controller\n");
+
     // BAR5 contains ABAR
     PCI::PCIBAR raw_abar = this->device->get_pcibar(5);
     Log::printk(Log::LogLevel::INFO, "ahci: Raw ABAR at %p with size 0x%zX\n",
@@ -25,6 +27,13 @@ void AHCIController::init()
     Log::printk(Log::LogLevel::INFO, "ahci: Mapped ABAR to %p\n",
                 mapped.second);
     this->hba = reinterpret_cast<struct hba_memory*>(mapped.second);
+
+    // TODO: Support MSI
+    uint8_t irq = this->device->read_config_8(PCI::pci_interrupt_line);
+    Log::printk(Log::LogLevel::INFO, "ahci: IRQ #%d\n", irq);
+
+    Interrupt::register_handler(Interrupt::irq_to_interrupt(irq),
+                                this->handler_data);
 
     // We are AHCI aware
     this->hba->global_host_control |= GHC_AE;
@@ -67,4 +76,21 @@ void AHCIController::init()
 size_t AHCIController::get_ncs()
 {
     return capability_ncs(this->hba->capability);
+}
+
+void AHCIController::handler()
+{
+    uint32_t is = this->hba->interrupt_status;
+    for (int i = 0; i < 32; i++) {
+        if ((is & (1 << i)) && this->ports[i]) {
+            this->ports[i]->handle();
+        }
+    }
+    this->hba->interrupt_status = is;
+}
+
+void AHCIController::raw_handler(int, void* data, struct InterruptContext* ctx)
+{
+    AHCIController* parent = reinterpret_cast<AHCIController*>(data);
+    parent->handler();
 }
