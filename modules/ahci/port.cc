@@ -17,12 +17,39 @@ void string_copy(char* target, char* source, size_t length)
     }
     target[length] = '\0';
 }
+
+uint32_t get_lba28_capacity(uint16_t* identify)
+{
+    uint32_t lba_cap =
+        identify[static_cast<int>(AHCIIdentify::ATA_LBA28_CAPACITY) + 1];
+    return lba_cap << 16 |
+           identify[static_cast<int>(AHCIIdentify::ATA_LBA28_CAPACITY)];
+}
+
+uint64_t get_lba48_capacity(uint16_t* identify)
+{
+    uint64_t lba48_cap =
+        identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 3];
+    return ((lba48_cap << 16 |
+             identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 2])
+                << 16 |
+            identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 1])
+               << 16 |
+           identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY)];
+}
+
+bool lba48_supported(uint16_t* identify)
+{
+    return identify[static_cast<int>(AHCIIdentify::ATA_COMMANDSET_2)] &
+           (1 << 10);
+}
 } // namespace
 
 AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     : controller(c)
     , identify(nullptr)
     , port(port)
+    , is_lba48(false)
 {
     // We only need to allocate space for however many command slots there are
     size_t clb_size =
@@ -100,6 +127,14 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
                 40);
     Log::printk(Log::LogLevel::INFO, "ahci: Serial: %s\n", serial);
     Log::printk(Log::LogLevel::INFO, "ahci: Model: %s\n", model);
+    this->is_lba48 = lba48_supported(this->identify);
+    if (this->is_lba48) {
+        Log::printk(Log::LogLevel::INFO, "ahci: LBA48 count: 0x%zX\n",
+                    get_lba48_capacity(this->identify));
+    } else {
+        Log::printk(Log::LogLevel::INFO, "ahci: LBA28 count: 0x%zX\n",
+                    get_lba28_capacity(this->identify));
+    }
 }
 
 AHCIPort::~AHCIPort()
@@ -184,15 +219,23 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
     fis->command      = ATA_CMD_IDENTIFY;
     fis->c            = 1;
     size_t num_blocks = (size + AHCI_BLOCK_SIZE - 1) / AHCI_BLOCK_SIZE;
-    fis->count_low    = 1;
-    fis->count_high   = 0;
-    fis->lba0         = 0;
-    fis->lba1         = 0;
-    fis->lba2         = 0;
-    fis->lba3         = 0;
-    fis->lba4         = 0;
-    fis->lba5         = 0;
-    fis->device       = (1 << 6);
+    if (this->is_lba48) {
+        fis->count_low  = num_blocks & 0xFF;
+        fis->count_high = (num_blocks >> 8) & 0xFF;
+        fis->lba0       = lba & 0xFF;
+        fis->lba1       = (lba >> 8) & 0xFF;
+        fis->lba2       = (lba >> 16) & 0xFF;
+        fis->lba3       = (lba >> 24) & 0xFF;
+        fis->lba4       = (lba >> 32) & 0xFF;
+        fis->lba5       = (lba >> 40) & 0xFF;
+        fis->device     = (1 << 6);
+    } else {
+        fis->count_low = num_blocks & 0xFF;
+        fis->lba0      = lba & 0xFF;
+        fis->lba1      = (lba >> 8) & 0xFF;
+        fis->lba2      = (lba >> 16) & 0xFF;
+        fis->device    = (1 << 6) | ((lba >> 24) & 0xF);
+    }
 
     this->port->command_issue |= (1 << slot);
 

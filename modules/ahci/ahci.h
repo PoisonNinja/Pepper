@@ -283,6 +283,9 @@ private:
     Memory::DMA::Region command_tables[32];
     Memory::DMA::Region fb;
     Memory::DMA::Region clb;
+
+    // Precache some geometry stuff to save lookups
+    bool is_lba48;
 };
 
 class AHCIController
