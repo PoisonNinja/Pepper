@@ -9,9 +9,11 @@ QEMU := qemu-system-$(ARCH)
 QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
 QEMU_ACCEL := -M accel=kvm:tcg
+QEMU_DEBUG := -s
+QEMU_BASE := $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_DEBUG)
 QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
-QEMU_REMOTE := -s -S
+QEMU_REMOTE := -S
 
 # Directories to exclude from the initrd
 INITRD_EXCLUDE_LIST := \
@@ -82,13 +84,13 @@ modules: FORCE
 	@cmake --build modules/build --target install
 
 monitor: initrd pepper.iso hdd.img
-	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_MONITOR)
+	@$(QEMU) $(QEMU_BASE) $(QEMU_MONITOR)
 
 remote: initrd pepper.iso hdd.img
-	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL) $(QEMU_REMOTE)
+	@$(QEMU) $(QEMU_BASE) $(QEMU_SERIAL) $(QEMU_REMOTE)
 
 qemu: initrd pepper.iso hdd.img
-	@$(QEMU) $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_SERIAL)
+	@$(QEMU) $(QEMU_BASE) $(QEMU_SERIAL)
 
 userspace: FORCE
 	@cmake --build userspace/build --target install
