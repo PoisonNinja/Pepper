@@ -222,7 +222,7 @@ struct hba_command_table {
  *
  * TODO: Move this to generic ATA header
  */
-enum class AHCI_IDENTIFY_COMMANDS {
+enum class AHCIIdentify {
     ATA_GENERAL_CONFIGURATION  = 0,
     ATA_SPECIFIC_CONFIGURATION = 2,
     ATA_SERIAL_NUMBER          = 10,
@@ -274,7 +274,11 @@ public:
 private:
     int get_free_slot();
 
+    bool send_command(uint8_t command, size_t size, uint8_t write, uint64_t lba,
+                      addr_t phys_buffer);
+
     AHCIController* controller;
+    uint16_t* identify;
     volatile struct hba_port* port;
     Memory::DMA::Region command_tables[32];
     Memory::DMA::Region fb;
