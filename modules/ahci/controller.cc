@@ -78,6 +78,11 @@ size_t AHCIController::get_ncs()
     return capability_ncs(this->hba->capability);
 }
 
+bool AHCIController::is_64bit()
+{
+    return this->hba->capability & CAP_S64A;
+}
+
 void AHCIController::handler()
 {
     uint32_t is = this->hba->interrupt_status;

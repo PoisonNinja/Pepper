@@ -275,7 +275,7 @@ private:
     int get_free_slot();
 
     bool send_command(uint8_t command, size_t size, uint8_t write, uint64_t lba,
-                      addr_t phys_buffer);
+                      uint8_t* buffer);
 
     AHCIController* controller;
     uint16_t* identify;
@@ -295,6 +295,7 @@ public:
     void init();
 
     size_t get_ncs();
+    bool is_64bit();
 
 private:
     void handler();
