@@ -112,7 +112,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     }
 
     this->send_command(ATA_CMD_IDENTIFY, 512, 0, 0,
-                       (uint8_t*)ident_region.virtual_base);
+                       reinterpret_cast<uint8_t*>(ident_region.virtual_base));
 
     Log::printk(Log::LogLevel::INFO, "ahci: Decoding IDENTIFY data\n");
     this->identify = reinterpret_cast<uint16_t*>(ident_region.virtual_base);
@@ -195,8 +195,9 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
     command_header += slot;
     command_header->fis_length =
         sizeof(struct fis_h2d) / sizeof(uint32_t); // dwords
-    command_header->write    = write ? 1 : 0;
-    command_header->prdt_len = sglist->num_regions;
+    command_header->write      = write ? 1 : 0;
+    command_header->prdt_len   = sglist->num_regions;
+    command_header->prdb_count = 0;
 
     volatile struct hba_command_table* command_table =
         reinterpret_cast<volatile struct hba_command_table*>(
@@ -243,9 +244,12 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
         fis->device    = (1 << 6) | ((lba >> 24) & 0xF);
     }
 
+    while (this->port->task_file_data & (ATA_STATUS_BSY | ATA_STATUS_DRQ))
+        ;
+
     this->port->command_issue |= (1 << slot);
 
-    while (this->port->task_file_data & ATA_STATUS_BSY)
+    while (this->port->command_issue & (1 << slot))
         ;
 
     for (auto region : sglist->list) {
