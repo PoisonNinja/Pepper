@@ -104,18 +104,14 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     Log::printk(Log::LogLevel::INFO, "ahci: Interrupt config set to 0x%X\n",
                 this->port->interrupt_enable);
 
-    Memory::DMA::Region ident_region;
-    if (!Memory::DMA::allocate(sizeof(uint16_t) * 256, ident_region)) {
-        Log::printk(Log::LogLevel::ERROR,
-                    "ahci: Failed to allocate ident region buffer\n");
-        return;
-    }
+    Memory::DMA::SGList* ident_region =
+        Memory::DMA::build_sglist(max_prdt_slots, max_prdt_size, 512);
 
-    this->send_command(ATA_CMD_IDENTIFY, 512, 0, 0,
-                       reinterpret_cast<uint8_t*>(ident_region.virtual_base));
+    this->send_command(ATA_CMD_IDENTIFY, 512, 0, 0, ident_region);
 
     Log::printk(Log::LogLevel::INFO, "ahci: Decoding IDENTIFY data\n");
-    this->identify = reinterpret_cast<uint16_t*>(ident_region.virtual_base);
+    this->identify =
+        reinterpret_cast<uint16_t*>(ident_region->list.front().virtual_base);
     char model[41];
     char serial[21];
     string_copy(serial,
@@ -144,14 +140,35 @@ AHCIPort::~AHCIPort()
 
 ssize_t AHCIPort::read(uint8_t* buffer, size_t count, off_t offset)
 {
-    uint8_t command =
-        (this->is_lba48) ? ATA_CMD_READ_DMA : ATA_CMD_READ_DMA_EXT;
-    this->send_command(command, count, 0, offset, buffer);
-    return count;
+    // uint8_t command =
+    //     (this->is_lba48) ? ATA_CMD_READ_DMA : ATA_CMD_READ_DMA_EXT;
+    // this->send_command(command, count, 0, offset, buffer);
+    // return count;
 }
 
 ssize_t AHCIPort::write(uint8_t* buffer, size_t count, off_t offset)
 {
+}
+
+bool AHCIPort::request(Filesystem::BlockRequest* request)
+{
+    return false;
+}
+
+Filesystem::sector_t AHCIPort::sector_size()
+{
+    // TODO: Actually calculate this
+    return 512;
+}
+
+size_t AHCIPort::sg_max_size()
+{
+    return max_prdt_size;
+}
+
+size_t AHCIPort::sg_max_count()
+{
+    return max_prdt_slots;
 }
 
 void AHCIPort::handle()
@@ -175,8 +192,8 @@ int AHCIPort::get_free_slot()
     return -1;
 }
 
-bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
-                            uint64_t lba, uint8_t* buffer)
+bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
+                            uint64_t lba, Memory::DMA::SGList* sglist)
 {
     int slot = this->get_free_slot();
     if (slot == -1) {
@@ -185,9 +202,6 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
         return false;
     }
     Log::printk(Log::LogLevel::INFO, "ahci: Got free slot %d\n", slot);
-
-    Memory::DMA::SGList* sglist =
-        Memory::DMA::build_sglist(max_prdt_slots, max_prdt_size, size);
 
     volatile struct hba_command_header* command_header =
         reinterpret_cast<volatile struct hba_command_header*>(
@@ -202,11 +216,9 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
     volatile struct hba_command_table* command_table =
         reinterpret_cast<volatile struct hba_command_table*>(
             this->command_tables[slot].virtual_base);
-    size_t left = size;
-    auto sg     = sglist->list.begin();
+    auto sg = sglist->list.begin();
     for (unsigned int index = 0;
-         index < max_prdt_slots && left && sg != sglist->list.end();
-         index++, sg++) {
+         index < max_prdt_slots && sg != sglist->list.end(); index++, sg++) {
         String::memset((void*)((*sg).virtual_base), 0xFE, (*sg).size);
         Log::printk(Log::LogLevel::INFO, "ahci: %p %p 0x%zX 0x%zX\n",
                     (*sg).physical_base, (*sg).virtual_base, (*sg).size,
@@ -216,16 +228,14 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
         // TODO: Not 64-bit correct
         command_table->prdt[index].data_base_high = 0;
         command_table->prdt[index].byte_count     = (*sg).size - 1;
-        left -= command_table->prdt[index].byte_count + 1;
     }
 
     volatile struct fis_h2d* fis =
         (volatile struct fis_h2d*)&command_table->command_fis;
     String::memset((void*)fis, 0, sizeof(*fis));
-    fis->type         = FIS_TYPE_REG_H2D;
-    fis->command      = command;
-    fis->c            = 1;
-    size_t num_blocks = (size + AHCI_BLOCK_SIZE - 1) / AHCI_BLOCK_SIZE;
+    fis->type    = FIS_TYPE_REG_H2D;
+    fis->command = command;
+    fis->c       = 1;
     if (this->is_lba48) {
         fis->count_low  = num_blocks & 0xFF;
         fis->count_high = (num_blocks >> 8) & 0xFF;
@@ -251,12 +261,6 @@ bool AHCIPort::send_command(uint8_t command, size_t size, uint8_t write,
 
     while (this->port->command_issue & (1 << slot))
         ;
-
-    for (auto region : sglist->list) {
-        String::memcpy(buffer, reinterpret_cast<void*>(region.virtual_base),
-                       region.size);
-        buffer += region.size;
-    }
 
     return true;
 }

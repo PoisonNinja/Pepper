@@ -38,7 +38,7 @@ void AHCIController::init()
     // We are AHCI aware
     this->hba->global_host_control |= GHC_AE;
 
-    Log::printk(Log::LogLevel::INFO, "Ports implemented: %X\n",
+    Log::printk(Log::LogLevel::INFO, "ahci: Ports implemented: %X\n",
                 this->hba->port_implemented);
     for (unsigned int i = 0; i < 32; i++) {
         if (this->hba->port_implemented & (1 << i)) {
@@ -94,7 +94,8 @@ void AHCIController::handler()
     this->hba->interrupt_status = is;
 }
 
-void AHCIController::raw_handler(int, void* data, struct InterruptContext* ctx)
+void AHCIController::raw_handler(int, void* data,
+                                 struct InterruptContext* /* ctx */)
 {
     AHCIController* parent = reinterpret_cast<AHCIController*>(data);
     parent->handler();

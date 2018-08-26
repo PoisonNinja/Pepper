@@ -269,13 +269,19 @@ public:
     virtual ssize_t read(uint8_t* buffer, size_t count, off_t offset) override;
     virtual ssize_t write(uint8_t* buffer, size_t count, off_t offset) override;
 
+    virtual bool request(Filesystem::BlockRequest* request) override;
+
+    virtual Filesystem::sector_t sector_size() override;
+    virtual size_t sg_max_size() override;
+    virtual size_t sg_max_count() override;
+
     void handle();
 
 private:
     int get_free_slot();
 
-    bool send_command(uint8_t command, size_t size, uint8_t write, uint64_t lba,
-                      uint8_t* buffer);
+    bool send_command(uint8_t command, size_t num_blocks, uint8_t write,
+                      uint64_t lba, Memory::DMA::SGList* sglist);
 
     AHCIController* controller;
     uint16_t* identify;
@@ -300,10 +306,10 @@ public:
 private:
     void handler();
     static void raw_handler(int, void* data, struct InterruptContext* ctx);
-    Interrupt::Handler handler_data;
 
     dev_t major;
     AHCIPort* ports[32];
     volatile struct hba_memory* hba;
     PCI::Device* device;
+    Interrupt::Handler handler_data;
 };
