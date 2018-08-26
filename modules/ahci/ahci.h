@@ -266,8 +266,6 @@ class AHCIPort : public Filesystem::BlockDevice
 public:
     AHCIPort(AHCIController* c, volatile struct hba_port* port);
     virtual ~AHCIPort() override;
-    virtual ssize_t read(uint8_t* buffer, size_t count, off_t offset) override;
-    virtual ssize_t write(uint8_t* buffer, size_t count, off_t offset) override;
 
     virtual bool request(Filesystem::BlockRequest* request) override;
 

@@ -138,21 +138,16 @@ AHCIPort::~AHCIPort()
 {
 }
 
-ssize_t AHCIPort::read(uint8_t* buffer, size_t count, off_t offset)
-{
-    // uint8_t command =
-    //     (this->is_lba48) ? ATA_CMD_READ_DMA : ATA_CMD_READ_DMA_EXT;
-    // this->send_command(command, count, 0, offset, buffer);
-    // return count;
-}
-
-ssize_t AHCIPort::write(uint8_t* buffer, size_t count, off_t offset)
-{
-}
-
 bool AHCIPort::request(Filesystem::BlockRequest* request)
 {
-    return false;
+    if (request->command == Filesystem::BlockRequestType::READ) {
+        uint8_t command =
+            (this->is_lba48) ? ATA_CMD_READ_DMA : ATA_CMD_READ_DMA_EXT;
+        return this->send_command(command, request->num_sectors, 0,
+                                  request->start, request->sglist);
+    } else {
+        return false;
+    }
 }
 
 Filesystem::sector_t AHCIPort::sector_size()
