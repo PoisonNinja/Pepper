@@ -42,6 +42,11 @@ int main(int argc, char** argv)
     close(ahci);
 
     mknod("/dev/hda", 0644 | S_IFBLK, makedev(0, 0));
+    buffer  = malloc(1024);
     int hda = open("/dev/hda", O_RDWR);
-    read(hda, buffer, 10);
+    lseek(hda, 1030, SEEK_SET);
+    read(hda, buffer, 1024);
+    uint32_t* blocks = (uint32_t*)buffer;
+    printf("%08X %08X %08X %08X\n", blocks[0], blocks[1], blocks[2], blocks[3]);
+    free(buffer);
 }
