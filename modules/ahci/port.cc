@@ -180,7 +180,7 @@ int AHCIPort::get_free_slot()
 {
     uint32_t slots = this->port->sata_active | this->port->command_issue;
     for (size_t i = 0; i < this->controller->get_ncs(); i++) {
-        if (slots & (1 << i)) {
+        if (!(slots & (1 << i))) {
             return i;
         }
     }
