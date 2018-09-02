@@ -254,7 +254,7 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
 
     this->port->command_issue |= (1 << slot);
 
-    while (this->port->command_issue & (1 << slot))
+    while (this->port->task_file_data & (ATA_STATUS_BSY | ATA_STATUS_DRQ))
         ;
 
     return true;
