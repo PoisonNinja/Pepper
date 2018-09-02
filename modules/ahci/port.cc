@@ -64,8 +64,12 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     String::memset(reinterpret_cast<void*>(this->clb.virtual_base), 0,
                    clb_size);
     this->port->command_list_base_low = this->clb.physical_base & 0xFFFFFFFF;
-    // TODO: Not 64-bit ready
+#if BITS == 64
+    this->port->command_list_base_high =
+        (this->clb.physical_base >> 32) & 0xFFFFFFFF;
+#else
     this->port->command_list_base_high = 0;
+#endif
 
     size_t fb_size = sizeof(struct hba_received_fis);
     if (!Memory::DMA::allocate(fb_size, this->fb)) {
@@ -76,9 +80,12 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     Log::printk(Log::LogLevel::INFO, "ahci: FIS at %p, size 0x%zX\n",
                 this->fb.physical_base, this->fb.size);
     String::memset(reinterpret_cast<void*>(this->fb.virtual_base), 0, fb_size);
-    this->port->fis_base_low = this->fb.physical_base;
-    // TODO: Not 64-bit ready
-    this->port->fis_base_high = 0;
+    this->port->fis_base_low = this->fb.physical_base & 0xFFFFFFFF;
+#if BITS == 64
+    this->port->fis_base_high = (this->fb.physical_base >> 32) & 0xFFFFFFFF;
+#else
+    this->port->fis_base_high          = 0;
+#endif
 
     volatile struct hba_command_header* header =
         reinterpret_cast<volatile struct hba_command_header*>(clb.virtual_base);
@@ -93,7 +100,12 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
                        command_table_size);
         header->command_table_base_low =
             this->command_tables[i].physical_base & 0xFFFFFFFF;
-        header->command_table_base_high = 0;
+#if BITS == 64
+        header->command_table_base_high =
+            (this->command_tables[i].physical_base >> 32) & 0xFFFFFFFF;
+#else
+        header->command_table_base_high           = 0;
+#endif
     }
     Log::printk(Log::LogLevel::INFO, "ahci: Tables rebased\n", port);
 
@@ -220,9 +232,13 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
                     (*sg).real_size);
         command_table->prdt[index].data_base_low =
             (*sg).physical_base & 0xFFFFFFFF;
-        // TODO: Not 64-bit correct
+#if BITS == 64
+        command_table->prdt[index].data_base_high =
+            ((*sg).physical_base >> 32) & 0xFFFFFFFF;
+#else
         command_table->prdt[index].data_base_high = 0;
-        command_table->prdt[index].byte_count     = (*sg).size - 1;
+#endif
+        command_table->prdt[index].byte_count = (*sg).size - 1;
     }
 
     volatile struct fis_h2d* fis =
