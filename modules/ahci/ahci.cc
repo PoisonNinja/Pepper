@@ -6,6 +6,18 @@
 #include <lib/printf.h>
 #include <lib/string.h>
 
+namespace
+{
+// TODO: Support generic AHCI devices
+PCI::Filter ahci_filter[] = {
+    // Intel
+    {PCI_VDEV(0x8086, 0x2829)},    // ICH8M (VirtualBox)
+    {PCI_VDEV(0x8086, 0x2922)},    // ICH9 (QEMU),
+    {PCI_CLASS_IF(0x1, 0x6, 0x1)}, // Generic AHCI device
+    {},                            // Null terminator
+};
+} // namespace
+
 class AHCIDriver : public PCI::Driver
 {
 public:
@@ -13,6 +25,7 @@ public:
     ~AHCIDriver() override;
     bool probe(PCI::Device* dev) override;
     const char* name() override;
+    const PCI::Filter* filter() override;
 
 private:
     dev_t major;
@@ -20,9 +33,7 @@ private:
 
 AHCIDriver::AHCIDriver()
 {
-    this->filter.class_id    = 1;
-    this->filter.subclass_id = 6;
-    this->major              = Filesystem::locate_class(Filesystem::BLK);
+    this->major = Filesystem::locate_class(Filesystem::BLK);
     Filesystem::register_class(Filesystem::BLK, this->major);
 }
 
@@ -41,6 +52,11 @@ bool AHCIDriver::probe(PCI::Device* dev)
 const char* AHCIDriver::name()
 {
     return "ahci";
+}
+
+const PCI::Filter* AHCIDriver::filter()
+{
+    return ahci_filter;
 }
 
 namespace
