@@ -8,7 +8,6 @@
 
 namespace
 {
-// TODO: Support generic AHCI devices
 PCI::Filter ahci_filter[] = {
     // Intel
     {PCI_VDEV(0x8086, 0x2829)},    // ICH8M (VirtualBox)
