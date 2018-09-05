@@ -10,8 +10,11 @@ namespace
 {
 PCI::Filter ahci_filter[] = {
     // Intel
-    {PCI_VDEV(0x8086, 0x2829)},    // ICH8M (VirtualBox)
-    {PCI_VDEV(0x8086, 0x2922)},    // ICH9 (QEMU),
+    {PCI_VDEV(0x8086, 0x2829)}, // ICH8M (VirtualBox)
+    {PCI_VDEV(0x8086, 0x2922)}, // ICH9 (QEMU),
+
+    // Others
+    {PCI_VDEV(0x15AD, 0x07E0)},    // VMWare
     {PCI_CLASS_IF(0x1, 0x6, 0x1)}, // Generic AHCI device
     {},                            // Null terminator
 };
