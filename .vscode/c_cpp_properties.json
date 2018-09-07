@@ -16,7 +16,7 @@
             },
             "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++17"
         },
         {
             "name": "Linux",
@@ -34,7 +34,7 @@
             },
             "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++17"
         },
         {
             "name": "Win32",
@@ -51,7 +51,7 @@
             },
             "compilerPath": "${workspaceRoot}/toolchain/local/bin/x86_64-pepper-g++ -fno-exceptions",
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++17"
         }
     ],
     "version": 4
