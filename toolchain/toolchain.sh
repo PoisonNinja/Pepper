@@ -65,6 +65,11 @@ function realpath() {
     cd "$1" || bail; pwd
 }
 
+case $(sed --help 2>&1) in
+  *GNU*) sed_i () { sed -i "$@"; };;
+  *) sed_i () { sed -i '' "$@"; };;
+esac
+
 PACKAGES="build-essential clang-format cmake cproto curl genext2fs grub-common libmpfr-dev libmpc-dev libgmp3-dev libncurses5-dev nasm ninja-build qemu texinfo xorriso"
 
 trap cleanup EXIT
@@ -271,7 +276,7 @@ then
         # mcmodel code
         make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || true
         # Patch the Makefile to remove PIC (https://wiki.osdev.org/Building_libgcc_for_mcmodel%3Dkernel)
-        sed -i 's/PICFLAG/DISABLED_PICFLAG/g' $TARGET/libgcc/Makefile
+        sed_i 's/PICFLAG/DISABLED_PICFLAG/g' $TARGET/libgcc/Makefile || bail
         # Continue the build
         make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || bail
     else
