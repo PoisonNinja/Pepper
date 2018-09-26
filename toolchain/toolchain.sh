@@ -170,7 +170,8 @@ then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
             brew install mpfr gmp libmpc nasm genext2fs qemu xorriso cproto cmake ninja
-            brew install $DIR/automake@1.12.rb
+            brew install clang-format
+            brew install automake
             brew install grep --with-default-names
             brew install findutils --with-default-names
         else
