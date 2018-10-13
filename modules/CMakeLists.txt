@@ -65,7 +65,7 @@ include(${PLATFORM_FILE})
 
 enable_language(ASM_NASM)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # -mcmodel=large is necessary to disable GOT/PLT
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-missing-field-initializers -ffreestanding -fno-builtin -fno-rtti -fno-exceptions -fno-stack-protector -fdiagnostics-color=always -mgeneral-regs-only")
