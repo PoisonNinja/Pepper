@@ -5,7 +5,10 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+#include <termios.h>
 #include <unistd.h>
+
+#define TIOCGPTN 0x30
 
 extern int init_module(void* module_image, unsigned long len,
                        const char* param_values);
@@ -18,6 +21,7 @@ int main(int argc, char** argv)
     // for now init will be responsible for initializing it
     mknod("/dev/tty", 0644 | S_IFCHR, makedev(0, 0));
     mknod("/dev/keyboard", 0644 | S_IFCHR, makedev(1, 0));
+    mknod("/dev/ptmx", 0644 | S_IFCHR, makedev(5, 0));
     open("/dev/keyboard", O_RDONLY); // stdin
     open("/dev/tty", O_WRONLY);      // stdout
     open("/dev/tty", O_WRONLY);      // stderr
@@ -49,4 +53,24 @@ int main(int argc, char** argv)
     uint32_t* blocks = (uint32_t*)buffer;
     printf("%08X %08X %08X %08X\n", blocks[0], blocks[1], blocks[2], blocks[3]);
     free(buffer);
+    close(hda);
+
+    int ptm    = open("/dev/ptmx", O_RDWR);
+    int pts_no = -1;
+    ioctl(ptm, TIOCGPTN, &pts_no);
+    printf("%d\n", pts_no);
+    char pts_path[128];
+    sprintf(pts_path, "/dev/pts/pts%d", pts_no);
+    int pts = open(pts_path, O_RDWR);
+    int a   = fork();
+    if (a) {
+        write(ptm, "Hello!", 7);
+    } else {
+        dup2(0, pts);
+        char input[128];
+        scanf("%s", input);
+        printf("Got %s from stdin\n", input);
+    }
+
+    return 0;
 }
