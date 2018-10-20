@@ -18,7 +18,8 @@ QEMU_REMOTE := -S
 # Directories to exclude from the initrd
 INITRD_EXCLUDE_LIST := \
 	boot \
-	usr
+	usr/lib \
+	usr/include
 
 # Convert each item above into one string for passing to tar
 INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
