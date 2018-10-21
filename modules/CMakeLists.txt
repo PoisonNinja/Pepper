@@ -78,6 +78,7 @@ message(STATUS "LDFLAGS: " ${CMAKE_EXE_LINKER_FLAGS})
 
 set(INCLUDE_DIRS "${INCLUDE_DIRS} ${KERNEL_PATH}/include/")
 include_directories(${INCLUDE_DIRS})
+include_directories("${KERNEL_PATH}/include/libstdc++")
 message(STATUS "Include directories: " ${INCLUDE_DIRS})
 
 add_executable(test.ko test.cc)
