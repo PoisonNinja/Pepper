@@ -11,5 +11,10 @@ int main(int argc, char** argv, char** envp)
     for (int i = 0; envp[i]; i++) {
         printf("[hello] %s\n", envp[i]);
     }
+    printf("[hello] We also have color support :)\n");
+    for (char a = '1'; a < '8'; a++) {
+        printf("\e[3%cmTest\n", a);
+        printf("\e[9%cmTest\n", a);
+    }
     return 123;
 }
