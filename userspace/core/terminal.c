@@ -65,27 +65,68 @@ int main(int argc, char* argv[])
             } else if (val == '\e') {
                 read(ptm, buffer, 3);
                 val = buffer[2];
-                switch (val) {
-                    case '1':
-                        color = 12; // Light Red
-                        break;
-                    case '2':
-                        color = 10; // Light Green
-                        break;
-                    case '3':
-                        color = 14; // Yellow
-                        break;
-                    case '6':
-                        color = 11; // Light Blue
-                        break;
-                    case '9':
-                        color = 15; // Reset to white
-                        break;
-                    default:
-                        color = 15;
-                        break;
+                if (buffer[1] == '3') {
+                    switch (val) {
+                        case '0':
+                            color = 0; // Black
+                            break;
+                        case '1':
+                            color = 4; // Red
+                            break;
+                        case '2':
+                            color = 2; // Green
+                            break;
+                        case '3':
+                            color = 14; // Yellow
+                            break;
+                        case '4':
+                            color = 1; // Blue
+                            break;
+                        case '5':
+                            color = 5; // Magenta
+                            break;
+                        case '6':
+                            color = 3; // Cyan
+                            break;
+                        case '7':
+                            color = 7; // Light gray
+                            break;
+                        default:
+                            color = 15;
+                            break;
+                    }
+                } else {
+                    switch (val) {
+                        case '0':
+                            color = 8; // Dark gray
+                            break;
+                        case '1':
+                            color = 12; // Light Red
+                            break;
+                        case '2':
+                            color = 10; // Light Green
+                            break;
+                        case '3':
+                            color = 14; // Yellow
+                            break;
+                        case '4':
+                            color = 9; // Light blue
+                            break;
+                        case '5':
+                            color = 13; // Light Magenta
+                            break;
+                        case '6':
+                            color = 11; // Light Cyan
+                            break;
+                        case '7':
+                            color = 15; // White
+                            break;
+                        default:
+                            color = 15;
+                            break;
+                    }
                 }
-                read(ptm, buffer, 2);
+                read(ptm, buffer, 1);
             } else {
                 size_t index           = y * VGA_WIDTH + x++;
                 internal_buffer[index] = val | (color << 8);
