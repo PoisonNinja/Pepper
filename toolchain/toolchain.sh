@@ -74,35 +74,38 @@ PACKAGES="build-essential clang-format cmake cproto curl genext2fs grub-common l
 
 trap cleanup EXIT
 
-while test $# -gt 0
+for i in "$@"
 do
-    case "$1" in
-        --skip-dependencies)
-            SKIP_DEPS=true
-            ;;
-        --skip-gcc)
-            SKIP_GCC=true
-            ;;
-        --skip-binutils)
-            SKIP_BINUTILS=true
-            ;;
-        --skip-newlib)
-            SKIP_NEWLIB=true
-            ;;
-        --help)
-            echo "Usage: toolchain.sh [options]"
-            echo ""
-            echo "--skip-dependencies           Skip installing dependencies"
-            echo "--skip-binutils               Skip building binutils"
-            echo "--skip-gcc                    Skip building GCC, libgcc, libstdc++"
-            echo "--skip-newlib                 Skip installing headers and building newlib"
-            echo "--help                        Display this help message"
-            exit 0
-            ;;
-    esac
-    shift
+case $i in
+    --architecture=*|--arch=*)
+        TARGET_ARCH="${i#*=}"
+        ;;
+    --skip-dependencies)
+        SKIP_DEPS=true
+        ;;
+    --skip-gcc)
+        SKIP_GCC=true
+        ;;
+    --skip-binutils)
+        SKIP_BINUTILS=true
+        ;;
+    --skip-newlib)
+        SKIP_NEWLIB=true
+        ;;
+    --help)
+        echo "Usage: toolchain.sh [options]"
+        echo ""
+        echo "--architecture|arch           Specify the target architecture"
+        echo "--skip-dependencies           Skip installing dependencies"
+        echo "--skip-binutils               Skip building binutils"
+        echo "--skip-gcc                    Skip building GCC, libgcc, libstdc++"
+        echo "--skip-newlib                 Skip installing headers and building newlib"
+        echo "--help                        Display this help message"
+        exit 0
+        ;;
+esac
+shift
 done
-
 
 echo "Target information:"
 echo "Architecture:" "$TARGET_ARCH"
