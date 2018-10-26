@@ -154,7 +154,7 @@ bool AHCIPort::request(Filesystem::BlockRequest* request)
 {
     if (request->command == Filesystem::BlockRequestType::READ) {
         uint8_t command =
-            (this->is_lba48) ? ATA_CMD_READ_DMA : ATA_CMD_READ_DMA_EXT;
+            (this->is_lba48) ? ATA_CMD_READ_DMA_EXT : ATA_CMD_READ_DMA;
         return this->send_command(command, request->num_sectors, 0,
                                   request->start, request->sglist);
     } else {
