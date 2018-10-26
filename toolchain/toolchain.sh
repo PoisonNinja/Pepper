@@ -79,6 +79,7 @@ do
 case $i in
     --architecture=*|--arch=*)
         TARGET_ARCH="${i#*=}"
+        TARGET="$TARGET_ARCH-pepper"
         ;;
     --skip-dependencies)
         SKIP_DEPS=true
@@ -109,6 +110,7 @@ done
 
 echo "Target information:"
 echo "Architecture:" "$TARGET_ARCH"
+echo "Target:" "$TARGET"
 echo
 
 if [[ $SKIP_DEPS == false ]]
@@ -225,6 +227,7 @@ then
 else
     echo "Skipping binutils build"
 fi
+
 
 if [[ $SKIP_GCC == false ]]
 then
