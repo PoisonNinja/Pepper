@@ -8,6 +8,8 @@
 const int VGA_HEIGHT = 25;
 const int VGA_WIDTH  = 80;
 
+extern int ioctl(int fd, unsigned long request, void* argp);
+
 uint16_t internal_buffer[80 * 25];
 
 static inline void outb(uint16_t port, uint8_t v)
@@ -40,7 +42,8 @@ int main(int argc, char* argv[])
     open("/dev/fb", O_WRONLY);       // stderr
 
     int x = 0, y = 0;
-    int color = 15;
+    int bg = 0;
+    int fg = 15;
 
     for (int i = 0; i < 80 * 25; i++) {
         internal_buffer[i] = 15 << 8;
@@ -57,7 +60,7 @@ int main(int argc, char* argv[])
     if (ret) {
         char buffer[128];
         while (1) {
-            ssize_t ret = read(ptm, buffer, 1);
+            read(ptm, buffer, 1);
             char val    = buffer[0];
             if (val == '\n') {
                 x = 0;
@@ -68,67 +71,118 @@ int main(int argc, char* argv[])
                 if (buffer[1] == '3') {
                     switch (val) {
                         case '0':
-                            color = 0; // Black
+                            fg = 0; // Black
                             break;
                         case '1':
-                            color = 4; // Red
+                            fg = 4; // Red
                             break;
                         case '2':
-                            color = 2; // Green
+                            fg = 2; // Green
                             break;
                         case '3':
-                            color = 14; // Yellow
+                            fg = 14; // Yellow
                             break;
                         case '4':
-                            color = 1; // Blue
+                            fg = 1; // Blue
                             break;
                         case '5':
-                            color = 5; // Magenta
+                            fg = 5; // Magenta
                             break;
                         case '6':
-                            color = 3; // Cyan
+                            fg = 3; // Cyan
                             break;
                         case '7':
-                            color = 7; // Light gray
-                            break;
-                        default:
-                            color = 15;
+                            fg = 7; // Light gray
                             break;
                     }
-                } else {
+                } else if (buffer[1] == '9') {
                     switch (val) {
                         case '0':
-                            color = 8; // Dark gray
+                            fg = 8; // Dark gray
                             break;
                         case '1':
-                            color = 12; // Light Red
+                            fg = 12; // Light Red
                             break;
                         case '2':
-                            color = 10; // Light Green
+                            fg = 10; // Light Green
                             break;
                         case '3':
-                            color = 14; // Yellow
+                            fg = 14; // Yellow
                             break;
                         case '4':
-                            color = 9; // Light blue
+                            fg = 9; // Light blue
                             break;
                         case '5':
-                            color = 13; // Light Magenta
+                            fg = 13; // Light Magenta
                             break;
                         case '6':
-                            color = 11; // Light Cyan
+                            fg = 11; // Light Cyan
                             break;
                         case '7':
-                            color = 15; // White
+                            fg = 15; // White
                             break;
-                        default:
-                            color = 15;
+                    }
+                } else if (buffer[1] == '4') {
+                    switch (val) {
+                        case '0':
+                            bg = 0; // Black
+                            break;
+                        case '1':
+                            bg = 4; // Red
+                            break;
+                        case '2':
+                            bg = 2; // Green
+                            break;
+                        case '3':
+                            bg = 14; // Yellow
+                            break;
+                        case '4':
+                            bg = 1; // Blue
+                            break;
+                        case '5':
+                            bg = 5; // Magenta
+                            break;
+                        case '6':
+                            bg = 3; // Cyan
+                            break;
+                        case '7':
+                            bg = 7; // Light gray
+                            break;
+                    }
+                } else if (buffer[1] == '7') {
+                    // read(ptm, buffer, 1);
+                    // val = buffer[0];
+                    switch (val) {
+                        case '0':
+                            bg = 8; // Dark gray
+                            break;
+                        case '1':
+                            bg = 12; // Light Red
+                            break;
+                        case '2':
+                            bg = 10; // Light Green
+                            break;
+                        case '3':
+                            bg = 14; // Yellow
+                            break;
+                        case '4':
+                            bg = 9; // Light blue
+                            break;
+                        case '5':
+                            bg = 13; // Light Magenta
+                            break;
+                        case '6':
+                            bg = 11; // Light Cyan
+                            break;
+                        case '7':
+                            bg = 15; // White
                             break;
                     }
                 }
                 read(ptm, buffer, 1);
             } else {
                 size_t index           = y * VGA_WIDTH + x++;
+                uint8_t color          = ((0xF & bg) << 4) | (0xF & fg);
                 internal_buffer[index] = val | (color << 8);
             }
             if (x == VGA_WIDTH) {
@@ -137,12 +191,12 @@ int main(int argc, char* argv[])
             }
             if (y == VGA_HEIGHT) {
                 for (int ny = 1; ny < VGA_HEIGHT; ny++) {
-                    memcpy((void*)&internal_buffer[(ny - 1) * VGA_WIDTH],
-                           (void*)&internal_buffer[ny * VGA_WIDTH],
+                    memcpy((void*)&(internal_buffer[(ny - 1) * VGA_WIDTH]),
+                           (void*)&(internal_buffer[ny * VGA_WIDTH]),
                            2 * VGA_WIDTH);
                 }
-                memset((void*)&internal_buffer[(VGA_HEIGHT - 1) * VGA_WIDTH], 0,
-                       2 * VGA_WIDTH);
+                memset((void*)&(internal_buffer[(VGA_HEIGHT - 1) * VGA_WIDTH]),
+                       0, 2 * VGA_WIDTH);
                 y = VGA_HEIGHT - 1;
             }
             lseek(1, 0, SEEK_SET);
@@ -157,10 +211,15 @@ int main(int argc, char* argv[])
         close(ptm);
         close(pts);
 
-        char* const envp[] = {
+        char* const new_argv[] = {
+            "/usr/bin/hello",
             NULL,
         };
 
-        execve(argv[1], argv, envp);
+        char* const new_envp[] = {
+            NULL,
+        };
+
+        execve(argv[1], new_argv, new_envp);
     }
 }
