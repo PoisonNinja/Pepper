@@ -258,7 +258,6 @@ then
     make DESTDIR="$SYSROOT" install || bail
     # Work around a newlib bug
     cp -R $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
-    cp $DIR/newlib/pepper/sys/* $SYSROOT/usr/include/sys/
     rm -r $SYSROOT/usr/$TARGET
     popd > /dev/null
 else
