@@ -20,11 +20,11 @@ case $i in
     shift
     ;;
     --kernel_args=*)
-    KERNEL_ARGS="${i#*=}"
+    KERNEL_ARGS+=" ${i#*=}"
     shift
     ;;
     --userspace_args=*)
-    USERSPACE_ARGS="${i#*=}"
+    USERSPACE_ARGS+=" ${i#*=}"
     shift
     ;;
     --no-newlib)
