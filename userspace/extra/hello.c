@@ -24,13 +24,14 @@ int main(int argc, char** argv, char** envp)
         printf("\e[3%cmTest \e[9%cmTest\n", a, a);
     }
 
-    // uint8_t* buffer = malloc(1024);
-    // int hda         = open("/dev/hda", O_RDWR);
-    // lseek(hda, 1030, SEEK_SET);
-    // read(hda, buffer, 1024);
-    // uint32_t* blocks = (uint32_t*)buffer;
-    // printf("%08X %08X %08X %08X\n", blocks[0], blocks[1], blocks[2],
-    // blocks[3]); free(buffer); close(hda);
+    uint8_t* buffer = malloc(1024);
+    int hda         = open("/dev/hda", O_RDWR);
+    lseek(hda, 1030, SEEK_SET);
+    read(hda, buffer, 1024);
+    uint32_t* blocks = (uint32_t*)buffer;
+    printf("%08X %08X %08X %08X\n", blocks[0], blocks[1], blocks[2], blocks[3]);
+    free(buffer);
+    close(hda);
 
     printf("\nHello MIT! This is all rendered using the userspace terminal!\n");
 
