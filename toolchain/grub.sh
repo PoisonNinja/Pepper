@@ -11,6 +11,8 @@ PREFIX="$DIR/local"
 BUILD_OBJCONV=true
 BUILD_GRUB=true
 
+GRUB_REVISION=8ada906031d9bd86547db82647f91cdf7db54fbf
+
 function cleanup() {
     echo ""
     echo "Please wait, cleaning up..."
@@ -89,6 +91,7 @@ if [[ $BUILD_GRUB == true ]]
 then
     git clone git://git.savannah.gnu.org/grub.git
     pushd grub > /dev/null
+    git checkout $GRUB_REVISION
     ./autogen.sh
     popd > /dev/null
     mkdir build
