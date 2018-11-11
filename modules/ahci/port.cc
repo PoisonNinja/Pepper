@@ -61,7 +61,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     }
     Log::printk(Log::LogLevel::INFO, "ahci: CLB at %p, size 0x%zX\n",
                 this->clb.physical_base, this->clb.size);
-    String::memset(reinterpret_cast<void*>(this->clb.virtual_base), 0,
+    libcxx::memset(reinterpret_cast<void*>(this->clb.virtual_base), 0,
                    clb_size);
     this->port->command_list_base_low = this->clb.physical_base & 0xFFFFFFFF;
 #if BITS == 64
@@ -79,7 +79,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     }
     Log::printk(Log::LogLevel::INFO, "ahci: FIS at %p, size 0x%zX\n",
                 this->fb.physical_base, this->fb.size);
-    String::memset(reinterpret_cast<void*>(this->fb.virtual_base), 0, fb_size);
+    libcxx::memset(reinterpret_cast<void*>(this->fb.virtual_base), 0, fb_size);
     this->port->fis_base_low = this->fb.physical_base & 0xFFFFFFFF;
 #if BITS == 64
     this->port->fis_base_high = (this->fb.physical_base >> 32) & 0xFFFFFFFF;
@@ -96,7 +96,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
                 command_table_size);
     for (size_t i = 0; i < this->controller->get_ncs(); i++, header++) {
         Memory::DMA::allocate(command_table_size, this->command_tables[i]);
-        String::memset((void*)this->command_tables[i].virtual_base, 0,
+        libcxx::memset((void*)this->command_tables[i].virtual_base, 0,
                        command_table_size);
         header->command_table_base_low =
             this->command_tables[i].physical_base & 0xFFFFFFFF;
@@ -226,7 +226,7 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
     auto sg = sglist->list.begin();
     for (unsigned int index = 0;
          index < max_prdt_slots && sg != sglist->list.end(); index++, sg++) {
-        String::memset((void*)((*sg).virtual_base), 0xFE, (*sg).size);
+        libcxx::memset((void*)((*sg).virtual_base), 0xFE, (*sg).size);
         Log::printk(Log::LogLevel::INFO, "ahci: %p %p 0x%zX 0x%zX\n",
                     (*sg).physical_base, (*sg).virtual_base, (*sg).size,
                     (*sg).real_size);
@@ -243,7 +243,7 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
 
     volatile struct fis_h2d* fis =
         (volatile struct fis_h2d*)&command_table->command_fis;
-    String::memset((void*)fis, 0, sizeof(*fis));
+    libcxx::memset((void*)fis, 0, sizeof(*fis));
     fis->type    = FIS_TYPE_REG_H2D;
     fis->command = command;
     fis->c       = 1;
