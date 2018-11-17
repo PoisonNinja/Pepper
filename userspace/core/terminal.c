@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         char buffer[128];
         while (1) {
             read(ptm, buffer, 1);
-            char val    = buffer[0];
+            char val = buffer[0];
             if (val == '\n') {
                 x = 0;
                 y++;
@@ -211,8 +211,10 @@ int main(int argc, char* argv[])
         close(ptm);
         close(pts);
 
+        char* const program = (argc > 1) ? argv[1] : "/usr/bin/hello";
+
         char* const new_argv[] = {
-            "/usr/bin/hello",
+            program,
             NULL,
         };
 
