@@ -7,7 +7,7 @@ AHCIController::AHCIController(PCI::Device* d, dev_t major)
     , ports{}
     , hba{nullptr}
     , device{d}
-    , handler_data{raw_handler, "ahci", this}
+    , handler_data{raw_handler, libcxx::string("ahci"), this}
 {
 }
 
