@@ -7,8 +7,12 @@ AHCIController::AHCIController(PCI::Device* d, dev_t major)
     , ports{}
     , hba{nullptr}
     , device{d}
-    , handler_data{raw_handler, "ahci", this}
+    , handler_data{nullptr, "ahci", this}
 {
+    handler_data.handler_v2 = [this](int, void* data,
+                                     struct InterruptContext* /* ctx */) {
+        this->handler();
+    };
 }
 
 void AHCIController::init()
@@ -97,6 +101,4 @@ void AHCIController::handler()
 void AHCIController::raw_handler(int, void* data,
                                  struct InterruptContext* /* ctx */)
 {
-    AHCIController* parent = reinterpret_cast<AHCIController*>(data);
-    parent->handler();
 }
