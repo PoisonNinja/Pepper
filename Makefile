@@ -1,9 +1,12 @@
 .PHONY: qemu
 
+include config.mk
+
 SHELL := /bin/bash
 OS := $(shell uname -s)
 
-ARCH ?= x86_64
+# Set from config.mk now
+# ARCH ?= x86_64
 QEMU := qemu-system-$(ARCH)
 
 QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
