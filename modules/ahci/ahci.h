@@ -302,8 +302,7 @@ public:
     bool is_64bit();
 
 private:
-    void handler();
-    static void raw_handler(int, void* data, struct InterruptContext* ctx);
+    void handler(int, void* data, struct InterruptContext* /* ctx */);
 
     dev_t major;
     AHCIPort* ports[32];

@@ -1,18 +1,18 @@
 #include "ahci.h"
 #include <drivers/pci/pci.h>
 #include <kernel.h>
+#include <lib/functional.h>
+
+using namespace libcxx::placeholders;
 
 AHCIController::AHCIController(PCI::Device* d, dev_t major)
     : major{major}
     , ports{}
     , hba{nullptr}
     , device{d}
-    , handler_data{nullptr, "ahci", this}
+    , handler_data{libcxx::bind(&AHCIController::handler, this, _1, _2, _3),
+                   "ahci", this}
 {
-    handler_data.handler_v2 = [this](int, void* data,
-                                     struct InterruptContext* /* ctx */) {
-        this->handler();
-    };
 }
 
 void AHCIController::init()
@@ -87,7 +87,8 @@ bool AHCIController::is_64bit()
     return this->hba->capability & CAP_S64A;
 }
 
-void AHCIController::handler()
+void AHCIController::handler(int, void* data,
+                             struct InterruptContext* /* ctx */)
 {
     uint32_t is = this->hba->interrupt_status;
     for (int i = 0; i < 32; i++) {
@@ -96,9 +97,4 @@ void AHCIController::handler()
         }
     }
     this->hba->interrupt_status = is;
-}
-
-void AHCIController::raw_handler(int, void* data,
-                                 struct InterruptContext* /* ctx */)
-{
 }
