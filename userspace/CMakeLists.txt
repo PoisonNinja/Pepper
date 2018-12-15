@@ -15,7 +15,7 @@ set(CMAKE_SYSTEM_VERSION    1)
 set(ARCH "x86_64" CACHE STRING "Architecture to build for")
 message(STATUS "Architecture: " ${ARCH})
 
-find_program(CMAKE_C_COMPILER ${ARCH}-pepper-gcc)
+find_program(CMAKE_C_COMPILER ${ARCH}-quark-gcc)
 if(NOT CMAKE_C_COMPILER)
     message(FATAL_ERROR "Compiler not found! Run the \
                          toolchain script in Pepper to build a toolchain. If \

@@ -66,7 +66,7 @@ echo "Importing variables using envsetup.sh"
 . $DIR/envsetup.sh > /dev/null
 
 echo "Checking if requested compiler exists..."
-command -v $ARCH-pepper-gcc > /dev/null 2>&1 || { echo >&2 "Compiler not found! Did you build the toolchain for the correct architecture?"; exit 1; }
+command -v $ARCH-quark-gcc > /dev/null 2>&1 || { echo >&2 "Compiler not found! Did you build the toolchain for the correct architecture?"; exit 1; }
 
 if [[ $NEWLIB == true ]]
 then

@@ -48,7 +48,7 @@ if(NOT DEFINED SYSROOT)
 endif()
 message(STATUS "Sysroot: " ${SYSROOT})
 
-find_program(CXX ${ARCH}-pepper-g++)
+find_program(CXX ${ARCH}-quark-g++)
 if(NOT CXX)
     message(FATAL_ERROR "Compiler not found! Run the \
                          toolchain script in Pepper to build a toolchain. If \
