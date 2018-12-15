@@ -6,7 +6,7 @@ diff -Naur gcc-8.1.0-original/config.sub gcc-8.1.0-patched/config.sub
  	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\
  	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
 -	      | -sym* | -kopensolaris* | -plan9* \
-+	      | -sym* | -kopensolaris* | -plan9* | -pepper* \
++	      | -sym* | -kopensolaris* | -plan9* | -quark* \
  	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
  	      | -aos* | -aros* | -cloudabi* | -sortix* \
  	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
@@ -17,17 +17,17 @@ diff -Naur gcc-8.1.0-original/fixincludes/mkfixinc.sh gcc-8.1.0-patched/fixinclu
  
  # Check for special fix rules for particular targets
  case $machine in
-+    *-*-pepper* | \
++    *-*-quark* | \
      i?86-*-cygwin* | \
      i?86-*-mingw32* | \
      x86_64-*-mingw32* | \
-diff -Naur gcc-8.1.0-original/gcc/config/pepper.h gcc-8.1.0-patched/gcc/config/pepper.h
---- gcc-8.1.0-original/gcc/config/pepper.h	1969-12-31 16:00:00.000000000 -0800
-+++ gcc-8.1.0-patched/gcc/config/pepper.h	2018-07-24 15:13:06.295791776 -0700
+diff -Naur gcc-8.1.0-original/gcc/config/quark.h gcc-8.1.0-patched/gcc/config/quark.h
+--- gcc-8.1.0-original/gcc/config/quark.h	1969-12-31 16:00:00.000000000 -0800
++++ gcc-8.1.0-patched/gcc/config/quark.h	2018-07-24 15:13:06.295791776 -0700
 @@ -0,0 +1,32 @@
 +/* Useful if you wish to make target-specific GCC changes. */
-+#undef TARGET_PEPPER
-+#define TARGET_PEPPER 1
++#undef TARGET_QUARK
++#define TARGET_QUARK 1
 +
 +/* Default arguments you want when running your
 +   i686-myos-gcc/x86_64-myos-gcc toolchain */
@@ -51,9 +51,9 @@ diff -Naur gcc-8.1.0-original/gcc/config/pepper.h gcc-8.1.0-patched/gcc/config/p
 +#undef TARGET_OS_CPP_BUILTINS
 +#define TARGET_OS_CPP_BUILTINS()      \
 +  do {                                \
-+    builtin_define ("__pepper__");      \
++    builtin_define ("__quark__");      \
 +    builtin_define ("__unix__");      \
-+    builtin_assert ("system=pepper");   \
++    builtin_assert ("system=quark");   \
 +    builtin_assert ("system=unix");   \
 +    builtin_assert ("system=posix");   \
 +  } while(0);
@@ -64,7 +64,7 @@ diff -Naur gcc-8.1.0-original/gcc/config.gcc gcc-8.1.0-patched/gcc/config.gcc
  *-*-fuchsia*)
    native_system_header_dir=/include
    ;;
-+*-*-pepper*)
++*-*-quark*)
 +  gas=yes
 +  gnu_ld=yes
 +  default_use_cxa_atexit=yes
@@ -76,11 +76,11 @@ diff -Naur gcc-8.1.0-original/gcc/config.gcc gcc-8.1.0-patched/gcc/config.gcc
  	tmake_file="${tmake_file} i386/t-x86_64-elf"
  	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h fuchsia.h"
  	;;
-+i[34567]86-*-pepper*)
-+	tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h glibc-stdint.h i386/i386elf.h pepper.h"
++i[34567]86-*-quark*)
++	tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h glibc-stdint.h i386/i386elf.h quark.h"
 +	;;
-+x86_64-*-pepper*)
-+    tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h glibc-stdint.h i386/i386elf.h i386/x86-64.h pepper.h"
++x86_64-*-quark*)
++    tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h glibc-stdint.h i386/i386elf.h i386/x86-64.h quark.h"
 +    ;;
  ia64*-*-elf*)
  	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h ia64/sysv4.h ia64/elf.h"
@@ -92,11 +92,11 @@ diff -Naur gcc-8.1.0-original/libgcc/config.host gcc-8.1.0-patched/libgcc/config
  		extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
  	fi
  	;;
-+i[34567]86-*-pepper*)
++i[34567]86-*-quark*)
 +	extra_parts="$extra_parts crti.o crtbegin.o crtend.o crtn.o"
 +	tmake_file="$tmake_file i386/t-crtstuff t-crtstuff-pic t-libgcc-pic"
 +	;;
-+x86_64-*-pepper*)
++x86_64-*-quark*)
 +	extra_parts="$extra_parts crti.o crtbegin.o crtend.o crtn.o"
 +	tmake_file="$tmake_file i386/t-crtstuff t-crtstuff-pic t-libgcc-pic"
 +	;;
@@ -110,7 +110,7 @@ diff -Naur gcc-8.1.0-original/libstdc++-v3/configure gcc-8.1.0-patched/libstdc++
  
      ;;
  
-+  *-pepper*)
++  *-quark*)
 +
 +  # All these tests are for C++; save the language and the compiler flags.
 +  # The CXXFLAGS thing is suspicious, but based on similar bits previously
@@ -6098,7 +6098,7 @@ diff -Naur gcc-8.1.0-original/libstdc++-v3/crossconfig.m4 gcc-8.1.0-patched/libs
      AC_SUBST(SECTION_FLAGS)
      ;;
  
-+  *-pepper*)
++  *-quark*)
 +    GLIBCXX_CHECK_COMPILER_FEATURES
 +    GLIBCXX_CHECK_LINKER_FEATURES
 +    GLIBCXX_CHECK_MATH_SUPPORT

@@ -5,7 +5,7 @@ diff -Naur binutils-2.31-original/bfd/config.bfd binutils-2.31-patched/bfd/confi
      targ_selvecs=
      targ64_selvecs=x86_64_elf64_vec
      ;;
-+  i[3-7]86-*-pepper*)
++  i[3-7]86-*-quark*)
 +    targ_defvec=i386_elf32_vec
 +    targ_selvecs=
 +    targ64_selvecs=x86_64_elf64_vec
@@ -18,7 +18,7 @@ diff -Naur binutils-2.31-original/bfd/config.bfd binutils-2.31-patched/bfd/confi
      targ_selvecs=i386_elf32_vec
      want64=true
 +    ;;
-+  x86_64-*-pepper*)
++  x86_64-*-quark*)
 +    targ_defvec=x86_64_elf64_vec
 +    targ_selvecs=i386_elf32_vec
 +    want64=true
@@ -33,7 +33,7 @@ diff -Naur binutils-2.31-original/config.sub binutils-2.31-patched/config.sub
  	     | *vms* | esix* | aix* | cnk* | sunos | sunos[34]*\
  	     | hpux* | unos* | osf* | luna* | dgux* | auroraux* | solaris* \
 -	     | sym* | kopensolaris* | plan9* \
-+	     | sym* | kopensolaris* | plan9* | pepper* \
++	     | sym* | kopensolaris* | plan9* | quark* \
  	     | amigaos* | amigados* | msdos* | newsos* | unicos* | aof* \
  	     | aos* | aros* | cloudabi* | sortix* \
  	     | nindy* | vxsim* | vxworks* | ebmon* | hms* | mvs* \
@@ -44,7 +44,7 @@ diff -Naur binutils-2.31-original/gas/configure.tgt binutils-2.31-patched/gas/co
      esac ;;
    i386-*-lynxos*)			fmt=elf em=lynx ;;
    i386-*-redox*)			fmt=elf ;;
-+  i386-*-pepper*)			fmt=elf em=gnu ;;
++  i386-*-quark*)			fmt=elf em=gnu ;;
    i386-*-solaris*)			fmt=elf em=solaris ;;
    i386-*-freebsd* \
    | i386-*-kfreebsd*-gnu)		fmt=elf em=freebsd ;;
@@ -55,29 +55,29 @@ diff -Naur binutils-2.31-original/ld/configure.tgt binutils-2.31-patched/ld/conf
  			targ_extra_emuls=elf_x86_64 ;;
  x86_64-*-redox*)	targ_emul=elf_x86_64
  			targ_extra_emuls=elf_i386 ;;
-+i[3-7]86-*-pepper*)
-+			targ_emul=elf_i386_pepper
++i[3-7]86-*-quark*)
++			targ_emul=elf_i386_quark
 +			targ_extra_emuls=elf_i386
-+			targ64_extra_emuls="elf_x86_64_pepper elf_x86_64"
++			targ64_extra_emuls="elf_x86_64_quark elf_x86_64"
 +			;;
-+x86_64-*-pepper*)
-+			targ_emul=elf_x86_64_pepper
-+			targ_extra_emuls="elf_i386_pepper elf_x86_64 elf_i386"
++x86_64-*-quark*)
++			targ_emul=elf_x86_64_quark
++			targ_extra_emuls="elf_i386_quark elf_x86_64 elf_i386"
 +			;;
  i[3-7]86-*-sysv[45]*)	targ_emul=elf_i386
  			targ_extra_emuls=elf_iamcu ;;
  i[3-7]86-*-solaris2*)	targ_emul=elf_i386_sol2
-diff -Naur binutils-2.31-original/ld/emulparams/elf_i386_pepper.sh binutils-2.31-patched/ld/emulparams/elf_i386_pepper.sh
---- binutils-2.31-original/ld/emulparams/elf_i386_pepper.sh	1969-12-31 16:00:00.000000000 -0800
-+++ binutils-2.31-patched/ld/emulparams/elf_i386_pepper.sh	2018-07-24 15:38:20.282801667 -0700
+diff -Naur binutils-2.31-original/ld/emulparams/elf_i386_quark.sh binutils-2.31-patched/ld/emulparams/elf_i386_quark.sh
+--- binutils-2.31-original/ld/emulparams/elf_i386_quark.sh	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31-patched/ld/emulparams/elf_i386_quark.sh	2018-07-24 15:38:20.282801667 -0700
 @@ -0,0 +1,4 @@
 +. ${srcdir}/emulparams/elf_i386.sh
 +GENERATE_SHLIB_SCRIPT=yes
 +GENERATE_PIE_SCRIPT=yes
 +
-diff -Naur binutils-2.31-original/ld/emulparams/elf_x86_64_pepper.sh binutils-2.31-patched/ld/emulparams/elf_x86_64_pepper.sh
---- binutils-2.31-original/ld/emulparams/elf_x86_64_pepper.sh	1969-12-31 16:00:00.000000000 -0800
-+++ binutils-2.31-patched/ld/emulparams/elf_x86_64_pepper.sh	2018-07-24 15:38:37.330700203 -0700
+diff -Naur binutils-2.31-original/ld/emulparams/elf_x86_64_quark.sh binutils-2.31-patched/ld/emulparams/elf_x86_64_quark.sh
+--- binutils-2.31-original/ld/emulparams/elf_x86_64_quark.sh	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31-patched/ld/emulparams/elf_x86_64_quark.sh	2018-07-24 15:38:37.330700203 -0700
 @@ -0,0 +1 @@
 +. ${srcdir}/emulparams/elf_x86_64.sh
 diff -Naur binutils-2.31-original/ld/Makefile.am binutils-2.31-patched/ld/Makefile.am
@@ -87,7 +87,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.am binutils-2.31-patched/ld/Makefi
  	eelf_i386_nacl.c \
  	eelf_i386_sol2.c \
  	eelf_i386_vxworks.c \
-+	eelf_i386_pepper.c \
++	eelf_i386_quark.c \
  	eelf_iamcu.c \
  	eelf_s390.c \
  	eh8300elf.c \
@@ -95,7 +95,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.am binutils-2.31-patched/ld/Makefi
  	eelf_x86_64_fbsd.c \
  	eelf_x86_64_nacl.c \
  	eelf_x86_64_sol2.c \
-+	eelf_x86_64_pepper.c \
++	eelf_x86_64_quark.c \
  	ehppa64linux.c \
  	ei386pep.c \
  	emmo.c
@@ -103,9 +103,9 @@ diff -Naur binutils-2.31-original/ld/Makefile.am binutils-2.31-patched/ld/Makefi
    $(srcdir)/emulparams/vxworks.sh $(srcdir)/emultempl/vxworks.em \
    $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-+eelf_i386_pepper.c: $(srcdir)/emulparams/elf_i386_pepper.sh \
++eelf_i386_quark.c: $(srcdir)/emulparams/elf_i386_quark.sh \
 +  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
-+	${GENSCRIPTS} elf_i386_pepper "$(tdir_elf_i386_pepper)"
++	${GENSCRIPTS} elf_i386_quark "$(tdir_elf_i386_quark)"
 +
  eelf_iamcu.c: $(srcdir)/emulparams/elf_iamcu.sh \
    $(ELF_X86_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
@@ -114,9 +114,9 @@ diff -Naur binutils-2.31-original/ld/Makefile.am binutils-2.31-patched/ld/Makefi
    $(srcdir)/emultempl/solaris2.em \
    $(ELF_X86_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-+eelf_x86_64_pepper.c: $(srcdir)/emulparams/elf_x86_64_pepper.sh \
++eelf_x86_64_quark.c: $(srcdir)/emulparams/elf_x86_64_quark.sh \
 +  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
-+	${GENSCRIPTS} elf_x86_64_pepper "$(tdir_elf_x86_64_pepper)"
++	${GENSCRIPTS} elf_x86_64_quark "$(tdir_elf_x86_64_quark)"
 +
 +
  ehppa64linux.c: $(srcdir)/emulparams/hppa64linux.sh \
@@ -137,7 +137,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
  	eelf_i386_nacl.c \
  	eelf_i386_sol2.c \
  	eelf_i386_vxworks.c \
-+	eelf_i386_pepper.c \
++	eelf_i386_quark.c \
  	eelf_iamcu.c \
  	eelf_s390.c \
  	eh8300elf.c \
@@ -145,7 +145,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
  	eelf_x86_64_fbsd.c \
  	eelf_x86_64_nacl.c \
  	eelf_x86_64_sol2.c \
-+	eelf_x86_64_pepper.c \
++	eelf_x86_64_quark.c \
  	ehppa64linux.c \
  	ei386pep.c \
  	emmo.c
@@ -153,7 +153,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_fbsd.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_ldso.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_nacl.Po@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_pepper.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_quark.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_sol2.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_i386_vxworks.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_iamcu.Po@am__quote@
@@ -161,7 +161,7 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_cloudabi.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_fbsd.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_nacl.Po@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_pepper.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_quark.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf_x86_64_sol2.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eh8300elf.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eh8300elf_linux.Po@am__quote@
@@ -169,9 +169,9 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
    $(srcdir)/emulparams/vxworks.sh $(srcdir)/emultempl/vxworks.em \
    $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-+eelf_i386_pepper.c: $(srcdir)/emulparams/elf_i386_pepper.sh \
++eelf_i386_quark.c: $(srcdir)/emulparams/elf_i386_quark.sh \
 +  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
-+	${GENSCRIPTS} elf_i386_pepper "$(tdir_elf_i386_pepper)"
++	${GENSCRIPTS} elf_i386_quark "$(tdir_elf_i386_quark)"
 +
  eelf_iamcu.c: $(srcdir)/emulparams/elf_iamcu.sh \
    $(ELF_X86_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
@@ -180,9 +180,9 @@ diff -Naur binutils-2.31-original/ld/Makefile.in binutils-2.31-patched/ld/Makefi
    $(srcdir)/emultempl/solaris2.em \
    $(ELF_X86_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-+eelf_x86_64_pepper.c: $(srcdir)/emulparams/elf_x86_64_pepper.sh \
++eelf_x86_64_quark.c: $(srcdir)/emulparams/elf_x86_64_quark.sh \
 +  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
-+	${GENSCRIPTS} elf_x86_64_pepper "$(tdir_elf_x86_64_pepper)"
++	${GENSCRIPTS} elf_x86_64_quark "$(tdir_elf_x86_64_quark)"
 +
  ehppa64linux.c: $(srcdir)/emulparams/hppa64linux.sh \
    $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
