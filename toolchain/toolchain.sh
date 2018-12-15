@@ -7,7 +7,7 @@ PATH="$PREFIX/bin:$PATH"
 SYSROOT=$(cd $DIR/../hdd; pwd)
 
 TARGET_ARCH="${TARGET_ARCH:-x86_64}"
-TARGET="$TARGET_ARCH-pepper"
+TARGET="$TARGET_ARCH-quark"
 
 GCCVER="gcc-8.1.0"
 BINUTILSVER="binutils-2.31"
@@ -79,7 +79,7 @@ do
 case $i in
     --architecture=*|--arch=*)
         TARGET_ARCH="${i#*=}"
-        TARGET="$TARGET_ARCH-pepper"
+        TARGET="$TARGET_ARCH-quark"
         ;;
     --skip-dependencies)
         SKIP_DEPS=true
@@ -236,7 +236,7 @@ then
     patchdir $GCCVER $DIR/$GCCVER.patch
     mkdir build-gcc
     pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" || bail
+    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" --enable-plugin || bail
     make all-gcc || bail
     make install-gcc || bail
     popd > /dev/null
@@ -249,8 +249,8 @@ export PATH="$PREFIX/bin:$PATH"
 if [[ $SKIP_NEWLIB == false ]]
 then
     git clone --depth=1 https://gitlab.com/PoisonNinja/newlib.git
-    cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/* newlib/newlib/libc/sys/pepper
-    cp newlib/newlib/libc/sys/pepper/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/pepper/sys/
+    cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/* newlib/newlib/libc/sys/quark
+    cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/quark/sys/
     mkdir build-newlib
     pushd build-newlib > /dev/null
     ../newlib/configure --prefix="/usr" --target="$TARGET" || bail
