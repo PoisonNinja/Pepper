@@ -9,7 +9,7 @@ SYSROOT=$(cd $DIR/../hdd; pwd)
 TARGET_ARCH="${TARGET_ARCH:-x86_64}"
 TARGET="$TARGET_ARCH-quark"
 
-GCCVER="gcc-8.1.0"
+GCCVER="gcc-8.2.0"
 BINUTILSVER="binutils-2.31"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
