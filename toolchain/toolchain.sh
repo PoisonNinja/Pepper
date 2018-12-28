@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PREFIX="$DIR/local"
 PATH="$PREFIX/bin:$PATH"
-SYSROOT=$(cd $DIR/../hdd; pwd)
+SYSROOT=$(cd $DIR/../sysroot; pwd)
 
 TARGET_ARCH="${TARGET_ARCH:-x86_64}"
 TARGET="$TARGET_ARCH-quark"

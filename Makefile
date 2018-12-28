@@ -10,7 +10,7 @@ OS := $(shell uname -s)
 QEMU := qemu-system-$(ARCH)
 
 QEMU_ARGS :=-m 1024 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
-QEMU_AHCI := -drive file=hdd.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
+QEMU_AHCI := -drive file=disk.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
 QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_DEBUG := -s
 QEMU_BASE := $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_DEBUG)
@@ -36,26 +36,26 @@ else
 	GRUB_MKRESCUE := grub-mkrescue
 endif
 
-HDD := $(shell find hdd/ -path "hdd/boot/initrd.tar" -prune -o -print)
+HDD := $(shell find sysroot/ -path "sysroot/boot/initrd.tar" -prune -o -print)
 
 # Userfacing targets
-all: pepper.iso hdd.img
+all: pepper.iso disk.img
 
-pepper.iso: hdd/boot/quark.kernel hdd/boot/initrd.tar
-	$(GRUB_MKRESCUE) -o pepper.iso hdd
+pepper.iso: sysroot/boot/quark.kernel sysroot/boot/initrd.tar
+	$(GRUB_MKRESCUE) -o pepper.iso sysroot
 
 clean:
-	$(RM) pepper.iso hdd.img hdd/boot/quark.kernel hdd/boot/initrd.tar
+	$(RM) pepper.iso disk.img sysroot/boot/quark.kernel sysroot/boot/initrd.tar
 	@cmake --build quark/build --target clean
 	@cmake --build userspace/build --target clean
 	@cmake --build modules/build --target clean
 
-hdd.img: $(HDD)
+disk.img: $(HDD)
 	@echo
 	@echo Generating hard disk image...
 	@echo
 # Modify this if genext2fs complains about not enough space
-	@genext2fs -d hdd -b 65536 hdd.img
+	@genext2fs -d sysroot -b 65536 disk.img
 
 help:
 	@echo "======= Pepper build system help ======"
@@ -69,7 +69,7 @@ help:
 	@echo "pepper.iso:      Build pepper.iso. Also builds the kernel and initrd"
 	@echo "clean:           Cleans *ALL* build files"
 	@echo "help:            Displays this message"
-	@echo "hdd.img:         Generate the hard disk image"
+	@echo "disk.img:        Generate the hard disk image"
 	@echo "initrd:          Generate the initrd"
 	@echo "kernel:          Build the kernel"
 	@echo "monitor:         Same as QEMU, but loads monitor instead of serial output"
@@ -80,33 +80,33 @@ help:
 	@echo "Unrecognized options will be automatically passed through to Quark"
 	@echo "Therefore, you can run kernel Makefile targets from this directory"
 
-initrd: hdd/boot/initrd.tar
+initrd: sysroot/boot/initrd.tar
 
-kernel: hdd/boot/quark.kernel
+kernel: sysroot/boot/quark.kernel
 
 modules: FORCE
 	@cmake --build modules/build --target install
 
-monitor: initrd pepper.iso hdd.img
+monitor: initrd pepper.iso disk.img
 	@$(QEMU) $(QEMU_BASE) $(QEMU_MONITOR)
 
-remote: initrd pepper.iso hdd.img
+remote: initrd pepper.iso disk.img
 	@$(QEMU) $(QEMU_BASE) $(QEMU_SERIAL) $(QEMU_REMOTE)
 
-qemu: initrd pepper.iso hdd.img
+qemu: initrd pepper.iso disk.img
 	@$(QEMU) $(QEMU_BASE) $(QEMU_SERIAL)
 
 userspace: FORCE
 	@cmake --build userspace/build --target install
 
 # Internal targets
-hdd/boot/initrd.tar: userspace modules $(HDD)
+sysroot/boot/initrd.tar: userspace modules $(HDD)
 	@echo
 	@echo Generating initrd...
 	@echo
-	@tar -cvf hdd/boot/initrd.tar $(INITRD_EXCLUDE) -C hdd .
+	@tar -cvf sysroot/boot/initrd.tar $(INITRD_EXCLUDE) -C sysroot .
 
-hdd/boot/quark.kernel: FORCE
+sysroot/boot/quark.kernel: FORCE
 	@cmake --build quark/build --target install
 
 FORCE:

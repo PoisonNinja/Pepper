@@ -6,8 +6,8 @@ pepper.iso
 hdd.img
 
 # sysroot
-hdd/boot/initrd.tar
-hdd/boot/*.kernel
-hdd/sbin
-hdd/usr
-hdd/lib
+sysroot/boot/initrd.tar
+sysroot/boot/*.kernel
+sysroot/sbin
+sysroot/usr
+sysroot/lib
