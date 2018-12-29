@@ -13,7 +13,9 @@ GCCVER="gcc-8.2.0"
 BINUTILSVER="binutils-2.31"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
-NEWLIBURL="ftp://sourceware.org/pub/newlib/$NEWLIBVER.tar.gz"
+LOCAL_GCC=""
+LOCAL_BINUTILS=""
+LOCAL_NEWLIB=""
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
@@ -31,12 +33,12 @@ function cleanup() {
 
 function error() {
     echo
-    echo -e "\033[31mError:\033[0m"
+    echo -e "\033[31mError:\033[0m $1"
 }
 
 function warning() {
     echo
-    echo -e "\033[1;33mWarning:\033[0m"
+    echo -e "\033[1;33mWarning:\033[0m $1"
 }
 
 function download() {
@@ -62,7 +64,7 @@ function bail() {
 }
 
 function realpath() {
-    cd "$1" || bail; pwd
+    echo "$(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")"
 }
 
 case $(sed --help 2>&1) in
@@ -81,6 +83,15 @@ case $i in
         TARGET_ARCH="${i#*=}"
         TARGET="$TARGET_ARCH-quark"
         ;;
+    --local-gcc=*)
+        LOCAL_GCC="$(realpath ${i#*=})"
+        ;;
+    --local-binutils=*)
+        LOCAL_BINUTILS="$(realpath ${i#*=})"
+        ;;
+    --local-newlib=*)
+        LOCAL_NEWLIB="$(realpath ${i#*=})"
+        ;;
     --skip-dependencies)
         SKIP_DEPS=true
         ;;
@@ -97,6 +108,9 @@ case $i in
         echo "Usage: toolchain.sh [options]"
         echo ""
         echo "--architecture|arch           Specify the target architecture"
+        echo "--local-gcc                   Use a local copy of GCC ($GCCVER.tar.xz)"
+        echo "--local-binutils              Use a local copy of binutils ($BINUTILSVER.tar.xz)"
+        echo "--local-newlib                Use a local copy of newlib (git repo)"
         echo "--skip-dependencies           Skip installing dependencies"
         echo "--skip-binutils               Skip building binutils"
         echo "--skip-gcc                    Skip building GCC, libgcc, libstdc++"
@@ -215,7 +229,17 @@ echo
 
 if [[ $SKIP_BINUTILS == false ]]
 then
-    download $BINUTILSURL binutils.tar.xz || bail
+    if [[ ! -z "$LOCAL_BINUTILS" ]]
+    then
+        if [[ ! -f "$LOCAL_BINUTILS" ]]
+        then
+            error "binutils not found. Please check the path"
+            exit 1
+        fi
+        cp "$LOCAL_BINUTILS" ./binutils.tar.xz || bail
+    else
+        download $BINUTILSURL binutils.tar.xz || bail
+    fi
     extract binutils.tar.xz || bail
     patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
     mkdir build-binutils
@@ -231,7 +255,17 @@ fi
 
 if [[ $SKIP_GCC == false ]]
 then
-    download $GCCURL gcc.tar.xz || bail
+    if [[ ! -z "$LOCAL_GCC" ]]
+    then
+        if [[ ! -f "$LOCAL_GCC" ]]
+        then
+            error "GCC not found. Please check the path"
+            exit 1
+        fi
+        cp "$LOCAL_GCC" ./gcc.tar.xz || bail
+    else
+        download $GCCURL gcc.tar.xz || bail
+    fi
     extract gcc.tar.xz || bail
     patchdir $GCCVER $DIR/$GCCVER.patch
     mkdir build-gcc
@@ -248,7 +282,17 @@ export PATH="$PREFIX/bin:$PATH"
 
 if [[ $SKIP_NEWLIB == false ]]
 then
-    git clone --depth=1 https://gitlab.com/PoisonNinja/newlib.git
+    if [[ ! -z "$LOCAL_NEWLIB" ]]
+    then
+        if [[ ! -d "$LOCAL_NEWLIB" ]]
+        then
+            error "newlib not found. Please check the path"
+            exit 1
+        fi
+        cp -r "$LOCAL_NEWLIB" ./newlib || bail
+    else
+        git clone --depth=1 https://gitlab.com/PoisonNinja/newlib.git
+    fi
     cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/* newlib/newlib/libc/sys/quark
     cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/quark/sys/
     mkdir build-newlib
