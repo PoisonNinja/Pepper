@@ -3,7 +3,7 @@ toolchain/local
 
 # Files
 pepper.iso
-hdd.img
+disk.img
 
 # sysroot
 sysroot/boot/initrd.tar
