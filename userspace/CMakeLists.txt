@@ -27,7 +27,7 @@ message(STATUS "C Compiler: " ${CMAKE_C_COMPILER})
 
 # Set SYSROOT so we know where to install the binaries
 if(NOT DEFINED SYSROOT)
-    set(SYSROOT "${CMAKE_SOURCE_DIR}/../hdd")
+    set(SYSROOT "${CMAKE_SOURCE_DIR}/../sysroot")
 endif()
 message(STATUS "Sysroot: " ${SYSROOT})
 

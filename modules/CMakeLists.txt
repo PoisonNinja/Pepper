@@ -44,7 +44,7 @@ endif()
 message(STATUS "Platform file: " ${PLATFORM_FILE})
 
 if(NOT DEFINED SYSROOT)
-    set(SYSROOT "${CMAKE_SOURCE_DIR}/../hdd")
+    set(SYSROOT "${CMAKE_SOURCE_DIR}/../sysroot")
 endif()
 message(STATUS "Sysroot: " ${SYSROOT})
 
