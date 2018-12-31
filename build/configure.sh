@@ -11,7 +11,7 @@ NEWLIB=true
 for i in "$@"
 do
 case $i in
-    --architecture=*)
+    --architecture=*|--arch=*)
     ARCH="${i#*=}"
     shift # past argument=value
     ;;
