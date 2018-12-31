@@ -279,14 +279,14 @@ private:
     int get_free_slot();
 
     bool send_command(uint8_t command, size_t num_blocks, uint8_t write,
-                      uint64_t lba, Memory::DMA::SGList* sglist);
+                      uint64_t lba, memory::dma::sglist* sglist);
 
     AHCIController* controller;
     uint16_t* identify;
     volatile struct hba_port* port;
-    Memory::DMA::Region command_tables[32];
-    Memory::DMA::Region fb;
-    Memory::DMA::Region clb;
+    memory::dma::region command_tables[32];
+    memory::dma::region fb;
+    memory::dma::region clb;
 
     // Precache some geometry stuff to save lookups
     bool is_lba48;
