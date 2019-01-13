@@ -54,7 +54,9 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     // We only need to allocate space for however many command slots there are
     size_t clb_size =
         sizeof(struct hba_command_header) * this->controller->get_ncs();
-    if (!memory::dma::allocate(clb_size, this->clb)) {
+    bool success;
+    libcxx::tie(success, this->clb) = memory::dma::allocate(clb_size);
+    if (!success) {
         Log::printk(Log::LogLevel::ERROR,
                     "ahci: Failed to allocate CLB memory, aborting\n");
         return;
@@ -71,8 +73,9 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     this->port->command_list_base_high = 0;
 #endif
 
-    size_t fb_size = sizeof(struct hba_received_fis);
-    if (!memory::dma::allocate(fb_size, this->fb)) {
+    size_t fb_size                 = sizeof(struct hba_received_fis);
+    libcxx::tie(success, this->fb) = memory::dma::allocate(fb_size);
+    if (!success) {
         Log::printk(Log::LogLevel::ERROR,
                     "ahci: Failed to allocate FIS memory, aborting\n");
         return;
@@ -95,7 +98,14 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     Log::printk(Log::LogLevel::INFO, "ahci: Command table size: 0x%zX\n",
                 command_table_size);
     for (size_t i = 0; i < this->controller->get_ncs(); i++, header++) {
-        memory::dma::allocate(command_table_size, this->command_tables[i]);
+        libcxx::tie(success, this->command_tables[i]) =
+            memory::dma::allocate(command_table_size);
+        if (!success) {
+            Log::printk(
+                Log::LogLevel::ERROR,
+                "ahci: Failed to allocate command table memory, aborting\n");
+            return;
+        }
         libcxx::memset((void*)this->command_tables[i].virtual_base, 0,
                        command_table_size);
         header->command_table_base_low =
@@ -116,7 +126,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     Log::printk(Log::LogLevel::INFO, "ahci: Interrupt config set to 0x%X\n",
                 this->port->interrupt_enable);
 
-    memory::dma::sglist* ident_region =
+    auto ident_region =
         memory::dma::make_sglist(max_prdt_slots, max_prdt_size, 512);
 
     this->send_command(ATA_CMD_IDENTIFY, 512, 0, 0, ident_region);
@@ -200,7 +210,8 @@ int AHCIPort::get_free_slot()
 }
 
 bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
-                            uint64_t lba, memory::dma::sglist* sglist)
+                            uint64_t lba,
+                            libcxx::unique_ptr<memory::dma::sglist>& sglist)
 {
     int slot = this->get_free_slot();
     if (slot == -1) {

@@ -279,7 +279,8 @@ private:
     int get_free_slot();
 
     bool send_command(uint8_t command, size_t num_blocks, uint8_t write,
-                      uint64_t lba, memory::dma::sglist* sglist);
+                      uint64_t lba,
+                      libcxx::unique_ptr<memory::dma::sglist>& sglist);
 
     AHCIController* controller;
     uint16_t* identify;
