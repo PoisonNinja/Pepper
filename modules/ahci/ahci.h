@@ -261,15 +261,15 @@ class Device;
 
 class AHCIController;
 
-class AHCIPort : public Filesystem::BlockDevice
+class AHCIPort : public filesystem::BlockDevice
 {
 public:
     AHCIPort(AHCIController* c, volatile struct hba_port* port);
     virtual ~AHCIPort() override;
 
-    virtual bool request(Filesystem::BlockRequest* request) override;
+    virtual bool request(filesystem::BlockRequest* request) override;
 
-    virtual Filesystem::sector_t sector_size() override;
+    virtual filesystem::sector_t sector_size() override;
     virtual size_t sg_max_size() override;
     virtual size_t sg_max_count() override;
 
@@ -309,5 +309,5 @@ private:
     AHCIPort* ports[32];
     volatile struct hba_memory* hba;
     PCI::Device* device;
-    Interrupt::Handler handler_data;
+    interrupt::handler handler_data;
 };

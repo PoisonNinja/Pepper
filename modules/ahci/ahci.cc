@@ -35,8 +35,8 @@ private:
 
 AHCIDriver::AHCIDriver()
 {
-    this->major = Filesystem::locate_class(Filesystem::BLK);
-    Filesystem::register_class(Filesystem::BLK, this->major);
+    this->major = filesystem::locate_class(filesystem::BLK);
+    filesystem::register_class(filesystem::BLK, this->major);
 }
 
 AHCIDriver::~AHCIDriver()

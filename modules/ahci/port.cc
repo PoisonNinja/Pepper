@@ -160,9 +160,9 @@ AHCIPort::~AHCIPort()
 {
 }
 
-bool AHCIPort::request(Filesystem::BlockRequest* request)
+bool AHCIPort::request(filesystem::BlockRequest* request)
 {
-    if (request->command == Filesystem::BlockRequestType::READ) {
+    if (request->command == filesystem::BlockRequestType::READ) {
         uint8_t command =
             (this->is_lba48) ? ATA_CMD_READ_DMA_EXT : ATA_CMD_READ_DMA;
         return this->send_command(command, request->num_sectors, 0,
@@ -172,7 +172,7 @@ bool AHCIPort::request(Filesystem::BlockRequest* request)
     }
 }
 
-Filesystem::sector_t AHCIPort::sector_size()
+filesystem::sector_t AHCIPort::sector_size()
 {
     // TODO: Actually calculate this
     return 512;

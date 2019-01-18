@@ -36,7 +36,7 @@ void AHCIController::init()
     uint8_t irq = this->device->read_config_8(PCI::pci_interrupt_line);
     Log::printk(Log::LogLevel::INFO, "ahci: IRQ #%d\n", irq);
 
-    Interrupt::register_handler(Interrupt::irq_to_interrupt(irq),
+    interrupt::register_handler(interrupt::irq_to_interrupt(irq),
                                 this->handler_data);
 
     // We are AHCI aware
@@ -66,7 +66,7 @@ void AHCIController::init()
                             i);
             }
             ports[i] = new AHCIPort(this, &this->hba->ports[i]);
-            Filesystem::register_blockdev(this->major, ports[i]);
+            filesystem::register_blockdev(this->major, ports[i]);
         }
     }
 
@@ -87,8 +87,7 @@ bool AHCIController::is_64bit()
     return this->hba->capability & CAP_S64A;
 }
 
-void AHCIController::handler(int, void* data,
-                             struct InterruptContext* /* ctx */)
+void AHCIController::handler(int, void*, struct InterruptContext* /* ctx */)
 {
     uint32_t is = this->hba->interrupt_status;
     for (int i = 0; i < 32; i++) {
