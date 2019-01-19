@@ -2,16 +2,17 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-TARGET=x86_64-pepper
+TARGET=x86_64-quark
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
 PREFIX="$DIR/local"
 
-BUILD_OBJCONV=true
+BUILD_OBJCONV=false
 BUILD_GRUB=true
 
-GRUB_REVISION=8ada906031d9bd86547db82647f91cdf7db54fbf
+GRUB_REVISION="grub-2.02"
+GRUB_URL="ftp://ftp.gnu.org/gnu/grub/$GRUB_REVISION.tar.xz"
 
 function cleanup() {
     echo ""
@@ -46,6 +47,13 @@ function download() {
 function extract() {
     echo "Extracting $1..."
     tar xf "$1"
+}
+
+function patchdir() {
+    echo "Patching $1..."
+    pushd $1 > /dev/null
+    patch -p1 < $2
+    popd > /dev/null
 }
 
 function bail() {
@@ -89,16 +97,12 @@ fi
 
 if [[ $BUILD_GRUB == true ]]
 then
-    git clone git://git.savannah.gnu.org/grub.git
-    pushd grub > /dev/null
-    git checkout $GRUB_REVISION
-    ./autogen.sh
-    popd > /dev/null
+    download $GRUB_URL grub.tar.xz || bail
+    extract grub.tar.xz || bail
+    patchdir $GRUB_REVISION $DIR/$GRUB_REVISION.patch
     mkdir build
     pushd build > /dev/null
-    ../grub/configure --disable-werror TARGET_CC=$TARGET-gcc TARGET_OBJCOPY=$TARGET-objcopy \
-    TARGET_STRIP=$TARGET-strip TARGET_NM=$TARGET-nm TARGET_RANLIB=$TARGET-ranlib --target=$TARGET \
-    --prefix="$PREFIX" || bail
+    ../$GRUB_REVISION/configure --disable-werror TARGET_CC=$TARGET-gcc TARGET_OBJCOPY=$TARGET-objcopy TARGET_STRIP=$TARGET-strip TARGET_NM=$TARGET-nm TARGET_RANLIB=$TARGET-ranlib --target=$TARGET --prefix="$PREFIX" || bail
     make || bail
     make install || bail
     popd > /dev/null

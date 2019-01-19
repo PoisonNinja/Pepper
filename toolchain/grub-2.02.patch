@@ -1,0 +1,48 @@
+diff -rupN grub-2.02-original/build-aux/config.sub grub-2.02-patched/build-aux/config.sub
+--- grub-2.02-original/build-aux/config.sub	2015-05-22 03:14:00.000000000 -0500
++++ grub-2.02-patched/build-aux/config.sub	2019-01-19 11:17:44.000000000 -0600
+@@ -1369,7 +1369,7 @@ case $os in
+ 	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
+ 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
+ 	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* \
+-	      | -bitrig* | -openbsd* | -solidbsd* \
++	      | -bitrig* | -openbsd* | -solidbsd* | -quark* \
+ 	      | -ekkobsd* | -kfreebsd* | -freebsd* | -riscix* | -lynxos* \
+ 	      | -bosx* | -nextstep* | -cxux* | -aout* | -elf* | -oabi* \
+ 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
+diff -rupN grub-2.02-original/grub-core/fs/btrfs.c grub-2.02-patched/grub-core/fs/btrfs.c
+--- grub-2.02-original/grub-core/fs/btrfs.c	2017-04-24 04:16:00.000000000 -0500
++++ grub-2.02-patched/grub-core/fs/btrfs.c	2019-01-19 11:31:51.000000000 -0600
+@@ -175,7 +175,7 @@ struct grub_btrfs_time
+ {
+   grub_int64_t sec;
+   grub_uint32_t nanosec;
+-} __attribute__ ((aligned (4)));
++} GRUB_PACKED;
+ 
+ struct grub_btrfs_inode
+ {
+diff -rupN grub-2.02-original/include/grub/efiemu/runtime.h grub-2.02-patched/include/grub/efiemu/runtime.h
+--- grub-2.02-original/include/grub/efiemu/runtime.h	2015-05-21 10:50:29.000000000 -0500
++++ grub-2.02-patched/include/grub/efiemu/runtime.h	2019-01-19 11:32:19.000000000 -0600
+@@ -29,7 +29,7 @@ struct grub_efiemu_ptv_rel
+ 
+ struct efi_variable
+ {
+-  grub_efi_guid_t guid;
++  grub_efi_packed_guid_t guid;
+   grub_uint32_t namelen;
+   grub_uint32_t size;
+   grub_efi_uint32_t attributes;
+diff -rupN grub-2.02-original/include/grub/gpt_partition.h grub-2.02-patched/include/grub/gpt_partition.h
+--- grub-2.02-original/include/grub/gpt_partition.h	2015-05-21 10:50:29.000000000 -0500
++++ grub-2.02-patched/include/grub/gpt_partition.h	2019-01-19 11:32:36.000000000 -0600
+@@ -28,7 +28,7 @@ struct grub_gpt_part_type
+   grub_uint16_t data2;
+   grub_uint16_t data3;
+   grub_uint8_t data4[8];
+-} __attribute__ ((aligned(8)));
++} GRUB_PACKED;
+ typedef struct grub_gpt_part_type grub_gpt_part_type_t;
+ 
+ #define GRUB_GPT_PARTITION_TYPE_EMPTY \
