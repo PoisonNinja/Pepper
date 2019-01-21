@@ -8,7 +8,7 @@
 
 namespace
 {
-PCI::Filter ahci_filter[] = {
+pci::filter ahci_filter[] = {
     // Intel
     {PCI_VDEV(0x8086, 0x2829)}, // ICH8M (VirtualBox)
     {PCI_VDEV(0x8086, 0x2922)}, // ICH9 (QEMU),
@@ -20,14 +20,14 @@ PCI::Filter ahci_filter[] = {
 };
 } // namespace
 
-class AHCIDriver : public PCI::Driver
+class AHCIDriver : public pci::driver
 {
 public:
     AHCIDriver();
     ~AHCIDriver() override;
-    bool probe(PCI::Device* dev) override;
+    bool probe(pci::device* dev) override;
     const char* name() override;
-    const PCI::Filter* filter() override;
+    const pci::filter* filt() override;
 
 private:
     dev_t major;
@@ -43,7 +43,7 @@ AHCIDriver::~AHCIDriver()
 {
 }
 
-bool AHCIDriver::probe(PCI::Device* dev)
+bool AHCIDriver::probe(pci::device* dev)
 {
     dev->claim();
     AHCIController* ahci = new AHCIController(dev, this->major);
@@ -56,7 +56,7 @@ const char* AHCIDriver::name()
     return "ahci";
 }
 
-const PCI::Filter* AHCIDriver::filter()
+const pci::filter* AHCIDriver::filt()
 {
     return ahci_filter;
 }
@@ -69,14 +69,14 @@ AHCIDriver ahci;
 extern "C" {
 int init()
 {
-    Log::printk(Log::LogLevel::INFO, "ahci: Registering driver...\n");
-    PCI::register_driver(ahci);
+    log::printk(log::log_level::INFO, "ahci: Registering driver...\n");
+    pci::register_driver(ahci);
     return 0;
 }
 
 int fini()
 {
-    Log::printk(Log::LogLevel::INFO, "Good bye from a module\n");
+    log::printk(log::log_level::INFO, "Good bye from a module\n");
     return 0;
 }
 }

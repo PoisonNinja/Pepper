@@ -9,7 +9,7 @@ class Test
 public:
     Test()
     {
-        Log::printk(Log::LogLevel::INFO, "Test instance created\n");
+        log::printk(log::log_level::INFO, "Test instance created\n");
     }
 };
 
@@ -18,13 +18,13 @@ Test test;
 extern "C" {
 int init()
 {
-    Log::printk(Log::LogLevel::INFO, "Hello from a module\n");
+    log::printk(log::log_level::INFO, "Hello from a module\n");
     return 0;
 }
 
 int fini()
 {
-    Log::printk(Log::LogLevel::INFO, "Good bye from a module\n");
+    log::printk(log::log_level::INFO, "Good bye from a module\n");
     return 0;
 }
 }

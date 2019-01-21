@@ -57,11 +57,11 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     bool success;
     libcxx::tie(success, this->clb) = memory::dma::allocate(clb_size);
     if (!success) {
-        Log::printk(Log::LogLevel::ERROR,
+        log::printk(log::log_level::ERROR,
                     "ahci: Failed to allocate CLB memory, aborting\n");
         return;
     }
-    Log::printk(Log::LogLevel::INFO, "ahci: CLB at %p, size 0x%zX\n",
+    log::printk(log::log_level::INFO, "ahci: CLB at %p, size 0x%zX\n",
                 this->clb.physical_base, this->clb.size);
     libcxx::memset(reinterpret_cast<void*>(this->clb.virtual_base), 0,
                    clb_size);
@@ -76,11 +76,11 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     size_t fb_size                 = sizeof(struct hba_received_fis);
     libcxx::tie(success, this->fb) = memory::dma::allocate(fb_size);
     if (!success) {
-        Log::printk(Log::LogLevel::ERROR,
+        log::printk(log::log_level::ERROR,
                     "ahci: Failed to allocate FIS memory, aborting\n");
         return;
     }
-    Log::printk(Log::LogLevel::INFO, "ahci: FIS at %p, size 0x%zX\n",
+    log::printk(log::log_level::INFO, "ahci: FIS at %p, size 0x%zX\n",
                 this->fb.physical_base, this->fb.size);
     libcxx::memset(reinterpret_cast<void*>(this->fb.virtual_base), 0, fb_size);
     this->port->fis_base_low = this->fb.physical_base & 0xFFFFFFFF;
@@ -95,14 +95,14 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     size_t command_table_size =
         sizeof(struct hba_command_table) +
         (sizeof(struct hba_prdt_entry) * (max_prdt_slots - 1));
-    Log::printk(Log::LogLevel::INFO, "ahci: Command table size: 0x%zX\n",
+    log::printk(log::log_level::INFO, "ahci: Command table size: 0x%zX\n",
                 command_table_size);
     for (size_t i = 0; i < this->controller->get_ncs(); i++, header++) {
         libcxx::tie(success, this->command_tables[i]) =
             memory::dma::allocate(command_table_size);
         if (!success) {
-            Log::printk(
-                Log::LogLevel::ERROR,
+            log::printk(
+                log::log_level::ERROR,
                 "ahci: Failed to allocate command table memory, aborting\n");
             return;
         }
@@ -117,13 +117,13 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
         header->command_table_base_high           = 0;
 #endif
     }
-    Log::printk(Log::LogLevel::INFO, "ahci: Tables rebased\n", port);
+    log::printk(log::log_level::INFO, "ahci: Tables rebased\n", port);
 
     this->port->command |= PXCMD_FRE;
     this->port->command |= PXCMD_ST;
     this->port->interrupt_enable = PORT_INTR_ERROR | PXIE_DHRE | PXIE_PSE |
                                    PXIE_DSE | PXIE_SDBE | PXIE_DPE;
-    Log::printk(Log::LogLevel::INFO, "ahci: Interrupt config set to 0x%X\n",
+    log::printk(log::log_level::INFO, "ahci: Interrupt config set to 0x%X\n",
                 this->port->interrupt_enable);
 
     auto ident_region =
@@ -131,7 +131,7 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
 
     this->send_command(ATA_CMD_IDENTIFY, 512, 0, 0, ident_region);
 
-    Log::printk(Log::LogLevel::INFO, "ahci: Decoding IDENTIFY data\n");
+    log::printk(log::log_level::INFO, "ahci: Decoding IDENTIFY data\n");
     this->identify =
         reinterpret_cast<uint16_t*>(ident_region->list.front().virtual_base);
     char model[41];
@@ -144,14 +144,14 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
                 (char*)(&this->identify[static_cast<int>(
                     AHCIIdentify::ATA_MODEL_NUMBER)]),
                 40);
-    Log::printk(Log::LogLevel::INFO, "ahci: Serial: %s\n", serial);
-    Log::printk(Log::LogLevel::INFO, "ahci: Model: %s\n", model);
+    log::printk(log::log_level::INFO, "ahci: Serial: %s\n", serial);
+    log::printk(log::log_level::INFO, "ahci: Model: %s\n", model);
     this->is_lba48 = lba48_supported(this->identify);
     if (this->is_lba48) {
-        Log::printk(Log::LogLevel::INFO, "ahci: LBA48 count: 0x%zX\n",
+        log::printk(log::log_level::INFO, "ahci: LBA48 count: 0x%zX\n",
                     get_lba48_capacity(this->identify));
     } else {
-        Log::printk(Log::LogLevel::INFO, "ahci: LBA28 count: 0x%zX\n",
+        log::printk(log::log_level::INFO, "ahci: LBA28 count: 0x%zX\n",
                     get_lba28_capacity(this->identify));
     }
 }
@@ -160,9 +160,9 @@ AHCIPort::~AHCIPort()
 {
 }
 
-bool AHCIPort::request(filesystem::BlockRequest* request)
+bool AHCIPort::request(filesystem::block_request* request)
 {
-    if (request->command == filesystem::BlockRequestType::READ) {
+    if (request->command == filesystem::block_request_type::READ) {
         uint8_t command =
             (this->is_lba48) ? ATA_CMD_READ_DMA_EXT : ATA_CMD_READ_DMA;
         return this->send_command(command, request->num_sectors, 0,
@@ -215,11 +215,11 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
 {
     int slot = this->get_free_slot();
     if (slot == -1) {
-        Log::printk(Log::LogLevel::ERROR,
+        log::printk(log::log_level::ERROR,
                     "ahci: Failed to get free command slot\n");
         return false;
     }
-    Log::printk(Log::LogLevel::INFO, "ahci: Got free slot %d\n", slot);
+    log::printk(log::log_level::INFO, "ahci: Got free slot %d\n", slot);
 
     volatile struct hba_command_header* command_header =
         reinterpret_cast<volatile struct hba_command_header*>(
@@ -238,7 +238,7 @@ bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
     for (unsigned int index = 0;
          index < max_prdt_slots && sg != sglist->list.end(); index++, sg++) {
         libcxx::memset((void*)((*sg).virtual_base), 0x00, (*sg).size);
-        Log::printk(Log::LogLevel::INFO, "ahci: %p %p 0x%zX 0x%zX\n",
+        log::printk(log::log_level::INFO, "ahci: %p %p 0x%zX 0x%zX\n",
                     (*sg).physical_base, (*sg).virtual_base, (*sg).size,
                     (*sg).real_size);
         command_table->prdt[index].data_base_low =

@@ -254,20 +254,20 @@ enum class AHCIIdentify {
     ATA_INTEGRITY              = 255,
 };
 
-namespace PCI
+namespace pci
 {
-class Device;
+class device;
 }
 
 class AHCIController;
 
-class AHCIPort : public filesystem::BlockDevice
+class AHCIPort : public filesystem::block_device
 {
 public:
     AHCIPort(AHCIController* c, volatile struct hba_port* port);
     virtual ~AHCIPort() override;
 
-    virtual bool request(filesystem::BlockRequest* request) override;
+    virtual bool request(filesystem::block_request* request) override;
 
     virtual filesystem::sector_t sector_size() override;
     virtual size_t sg_max_size() override;
@@ -296,18 +296,18 @@ private:
 class AHCIController
 {
 public:
-    AHCIController(PCI::Device* d, dev_t major);
+    AHCIController(pci::device* d, dev_t major);
     void init();
 
     size_t get_ncs();
     bool is_64bit();
 
 private:
-    void handler(int, void* data, struct InterruptContext* /* ctx */);
+    void handler(int, void* data, struct interrupt_context* /* ctx */);
 
     dev_t major;
     AHCIPort* ports[32];
     volatile struct hba_memory* hba;
-    PCI::Device* device;
+    pci::device* device;
     interrupt::handler handler_data;
 };
