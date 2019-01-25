@@ -81,8 +81,5 @@ include_directories(${INCLUDE_DIRS})
 include_directories("${KERNEL_PATH}/include/libstdc++")
 message(STATUS "Include directories: " ${INCLUDE_DIRS})
 
-add_executable(test.ko test.cc)
-
 add_subdirectory(ahci)
-
-install(TARGETS test.ko DESTINATION ${SYSROOT}/lib/modules)
+add_subdirectory(test)
