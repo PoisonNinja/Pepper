@@ -46,7 +46,7 @@ AHCIDriver::~AHCIDriver()
 bool AHCIDriver::probe(pci::device* dev)
 {
     dev->claim();
-    AHCIController* ahci = new AHCIController(dev, this->major);
+    ahci_controller* ahci = new ahci_controller(dev, this->major);
     ahci->init();
     return true;
 }

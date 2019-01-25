@@ -222,7 +222,7 @@ struct hba_command_table {
  *
  * TODO: Move this to generic ATA header
  */
-enum class AHCIIdentify {
+enum class ahci_identify {
     ATA_GENERAL_CONFIGURATION  = 0,
     ATA_SPECIFIC_CONFIGURATION = 2,
     ATA_SERIAL_NUMBER          = 10,
@@ -259,13 +259,13 @@ namespace pci
 class device;
 }
 
-class AHCIController;
+class ahci_controller;
 
-class AHCIPort : public filesystem::block_device
+class ahci_port : public filesystem::block_device
 {
 public:
-    AHCIPort(AHCIController* c, volatile struct hba_port* port);
-    virtual ~AHCIPort() override;
+    ahci_port(ahci_controller* c, volatile struct hba_port* port);
+    virtual ~ahci_port() override;
 
     virtual bool request(filesystem::block_request* request) override;
 
@@ -282,7 +282,7 @@ private:
                       uint64_t lba,
                       libcxx::unique_ptr<memory::dma::sglist>& sglist);
 
-    AHCIController* controller;
+    ahci_controller* controller;
     uint16_t* identify;
     volatile struct hba_port* port;
     memory::dma::region command_tables[32];
@@ -293,10 +293,10 @@ private:
     bool is_lba48;
 };
 
-class AHCIController
+class ahci_controller
 {
 public:
-    AHCIController(pci::device* d, dev_t major);
+    ahci_controller(pci::device* d, dev_t major);
     void init();
 
     size_t get_ncs();
@@ -306,7 +306,7 @@ private:
     void handler(int, void* data, struct interrupt_context* /* ctx */);
 
     dev_t major;
-    AHCIPort* ports[32];
+    ahci_port* ports[32];
     volatile struct hba_memory* hba;
     pci::device* device;
     interrupt::handler handler_data;

@@ -5,17 +5,17 @@
 
 using namespace libcxx::placeholders;
 
-AHCIController::AHCIController(pci::device* d, dev_t major)
+ahci_controller::ahci_controller(pci::device* d, dev_t major)
     : major{major}
     , ports{}
     , hba{nullptr}
     , device{d}
-    , handler_data{libcxx::bind(&AHCIController::handler, this, _1, _2, _3),
+    , handler_data{libcxx::bind(&ahci_controller::handler, this, _1, _2, _3),
                    "ahci", this}
 {
 }
 
-void AHCIController::init()
+void ahci_controller::init()
 {
     log::printk(log::log_level::INFO, "ahci: Initializing AHCI controller\n");
 
@@ -65,7 +65,7 @@ void AHCIController::init()
                 log::printk(log::log_level::INFO,
                             "ahci: Port %d already idle\n", i);
             }
-            ports[i] = new AHCIPort(this, &this->hba->ports[i]);
+            ports[i] = new ahci_port(this, &this->hba->ports[i]);
             filesystem::register_blockdev(this->major, ports[i]);
         }
     }
@@ -77,17 +77,17 @@ void AHCIController::init()
     this->hba->global_host_control |= GHC_IE;
 }
 
-size_t AHCIController::get_ncs()
+size_t ahci_controller::get_ncs()
 {
     return capability_ncs(this->hba->capability);
 }
 
-bool AHCIController::is_64bit()
+bool ahci_controller::is_64bit()
 {
     return this->hba->capability & CAP_S64A;
 }
 
-void AHCIController::handler(int, void*, struct interrupt_context* /* ctx */)
+void ahci_controller::handler(int, void*, struct interrupt_context* /* ctx */)
 {
     uint32_t is = this->hba->interrupt_status;
     for (int i = 0; i < 32; i++) {

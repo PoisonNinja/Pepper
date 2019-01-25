@@ -21,31 +21,31 @@ void string_copy(char* target, char* source, size_t length)
 uint32_t get_lba28_capacity(uint16_t* identify)
 {
     uint32_t lba_cap =
-        identify[static_cast<int>(AHCIIdentify::ATA_LBA28_CAPACITY) + 1];
+        identify[static_cast<int>(ahci_identify::ATA_LBA28_CAPACITY) + 1];
     return lba_cap << 16 |
-           identify[static_cast<int>(AHCIIdentify::ATA_LBA28_CAPACITY)];
+           identify[static_cast<int>(ahci_identify::ATA_LBA28_CAPACITY)];
 }
 
 uint64_t get_lba48_capacity(uint16_t* identify)
 {
     uint64_t lba48_cap =
-        identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 3];
+        identify[static_cast<int>(ahci_identify::ATA_LBA48_CAPACITY) + 3];
     return ((lba48_cap << 16 |
-             identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 2])
+             identify[static_cast<int>(ahci_identify::ATA_LBA48_CAPACITY) + 2])
                 << 16 |
-            identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY) + 1])
+            identify[static_cast<int>(ahci_identify::ATA_LBA48_CAPACITY) + 1])
                << 16 |
-           identify[static_cast<int>(AHCIIdentify::ATA_LBA48_CAPACITY)];
+           identify[static_cast<int>(ahci_identify::ATA_LBA48_CAPACITY)];
 }
 
 bool lba48_supported(uint16_t* identify)
 {
-    return identify[static_cast<int>(AHCIIdentify::ATA_COMMANDSET_2)] &
+    return identify[static_cast<int>(ahci_identify::ATA_COMMANDSET_2)] &
            (1 << 10);
 }
 } // namespace
 
-AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
+ahci_port::ahci_port(ahci_controller* c, volatile struct hba_port* port)
     : controller(c)
     , identify(nullptr)
     , port(port)
@@ -138,11 +138,11 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     char serial[21];
     string_copy(serial,
                 (char*)(&this->identify[static_cast<int>(
-                    AHCIIdentify::ATA_SERIAL_NUMBER)]),
+                    ahci_identify::ATA_SERIAL_NUMBER)]),
                 20);
     string_copy(model,
                 (char*)(&this->identify[static_cast<int>(
-                    AHCIIdentify::ATA_MODEL_NUMBER)]),
+                    ahci_identify::ATA_MODEL_NUMBER)]),
                 40);
     log::printk(log::log_level::INFO, "ahci: Serial: %s\n", serial);
     log::printk(log::log_level::INFO, "ahci: Model: %s\n", model);
@@ -156,11 +156,11 @@ AHCIPort::AHCIPort(AHCIController* c, volatile struct hba_port* port)
     }
 }
 
-AHCIPort::~AHCIPort()
+ahci_port::~ahci_port()
 {
 }
 
-bool AHCIPort::request(filesystem::block_request* request)
+bool ahci_port::request(filesystem::block_request* request)
 {
     if (request->command == filesystem::block_request_type::READ) {
         uint8_t command =
@@ -172,23 +172,23 @@ bool AHCIPort::request(filesystem::block_request* request)
     }
 }
 
-filesystem::sector_t AHCIPort::sector_size()
+filesystem::sector_t ahci_port::sector_size()
 {
     // TODO: Actually calculate this
     return 512;
 }
 
-size_t AHCIPort::sg_max_size()
+size_t ahci_port::sg_max_size()
 {
     return max_prdt_size;
 }
 
-size_t AHCIPort::sg_max_count()
+size_t ahci_port::sg_max_count()
 {
     return max_prdt_slots;
 }
 
-void AHCIPort::handle()
+void ahci_port::handle()
 {
     uint32_t is = this->port->interrupt_status;
     if (!is)
@@ -198,7 +198,7 @@ void AHCIPort::handle()
     this->port->interrupt_status = is;
 }
 
-int AHCIPort::get_free_slot()
+int ahci_port::get_free_slot()
 {
     uint32_t slots = this->port->sata_active | this->port->command_issue;
     for (size_t i = 0; i < this->controller->get_ncs(); i++) {
@@ -209,9 +209,9 @@ int AHCIPort::get_free_slot()
     return -1;
 }
 
-bool AHCIPort::send_command(uint8_t command, size_t num_blocks, uint8_t write,
-                            uint64_t lba,
-                            libcxx::unique_ptr<memory::dma::sglist>& sglist)
+bool ahci_port::send_command(uint8_t command, size_t num_blocks, uint8_t write,
+                             uint64_t lba,
+                             libcxx::unique_ptr<memory::dma::sglist>& sglist)
 {
     int slot = this->get_free_slot();
     if (slot == -1) {
