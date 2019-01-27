@@ -13,6 +13,7 @@ GCCVER="gcc-8.2.0"
 BINUTILSVER="binutils-2.31"
 GCCURL="http://www.netgull.com/gcc/releases/$GCCVER/$GCCVER.tar.xz"
 BINUTILSURL="http://ftp.gnu.org/gnu/binutils/$BINUTILSVER.tar.xz"
+NEWLIBURL="https://github.com/PoisonNinja/newlib.git"
 LOCAL_GCC=""
 LOCAL_BINUTILS=""
 LOCAL_NEWLIB=""
@@ -291,7 +292,7 @@ then
         fi
         cp -r "$LOCAL_NEWLIB" ./newlib || bail
     else
-        git clone --depth=1 https://gitlab.com/PoisonNinja/newlib.git
+        git clone --depth=1 "$NEWLIBURL"
     fi
     cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/* newlib/newlib/libc/sys/quark
     cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/quark/sys/
