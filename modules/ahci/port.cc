@@ -219,7 +219,7 @@ bool ahci_port::send_command(uint8_t command, size_t num_blocks, uint8_t write,
                     "ahci: Failed to get free command slot\n");
         return false;
     }
-    log::printk(log::log_level::INFO, "ahci: Got free slot %d\n", slot);
+    log::printk(log::log_level::DEBUG, "ahci: Got free slot %d\n", slot);
 
     volatile struct hba_command_header* command_header =
         reinterpret_cast<volatile struct hba_command_header*>(
@@ -238,7 +238,7 @@ bool ahci_port::send_command(uint8_t command, size_t num_blocks, uint8_t write,
     for (unsigned int index = 0;
          index < max_prdt_slots && sg != sglist->list.end(); index++, sg++) {
         libcxx::memset((void*)((*sg).virtual_base), 0x00, (*sg).size);
-        log::printk(log::log_level::INFO, "ahci: %p %p 0x%zX 0x%zX\n",
+        log::printk(log::log_level::DEBUG, "ahci: %p %p 0x%zX 0x%zX\n",
                     (*sg).physical_base, (*sg).virtual_base, (*sg).size,
                     (*sg).real_size);
         command_table->prdt[index].data_base_low =
