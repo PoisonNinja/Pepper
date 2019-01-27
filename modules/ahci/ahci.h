@@ -257,7 +257,7 @@ enum class ahci_identify {
 namespace pci
 {
 class device;
-}
+} // namespace pci
 
 class ahci_controller;
 

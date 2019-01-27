@@ -20,11 +20,11 @@ pci::filter ahci_filter[] = {
 };
 } // namespace
 
-class AHCIDriver : public pci::driver
+class ahci_driver : public pci::driver
 {
 public:
-    AHCIDriver();
-    ~AHCIDriver() override;
+    ahci_driver();
+    ~ahci_driver() override;
     bool probe(pci::device* dev) override;
     const char* name() override;
     const pci::filter* filt() override;
@@ -33,17 +33,17 @@ private:
     dev_t major;
 };
 
-AHCIDriver::AHCIDriver()
+ahci_driver::ahci_driver()
 {
     this->major = filesystem::locate_class(filesystem::BLK);
     filesystem::register_class(filesystem::BLK, this->major);
 }
 
-AHCIDriver::~AHCIDriver()
+ahci_driver::~ahci_driver()
 {
 }
 
-bool AHCIDriver::probe(pci::device* dev)
+bool ahci_driver::probe(pci::device* dev)
 {
     dev->claim();
     ahci_controller* ahci = new ahci_controller(dev, this->major);
@@ -51,19 +51,19 @@ bool AHCIDriver::probe(pci::device* dev)
     return true;
 }
 
-const char* AHCIDriver::name()
+const char* ahci_driver::name()
 {
     return "ahci";
 }
 
-const pci::filter* AHCIDriver::filt()
+const pci::filter* ahci_driver::filt()
 {
     return ahci_filter;
 }
 
 namespace
 {
-AHCIDriver ahci;
+ahci_driver ahci;
 }
 
 extern "C" {
