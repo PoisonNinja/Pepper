@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     init_module(buffer, st.st_size, "");
     free(buffer);
     close(ahci);
-    mknod("/dev/hda", 0644 | S_IFBLK, makedev(0, 0));
+    mknod("/dev/sda", 0644 | S_IFBLK, makedev(0, 0));
 
     int ret = fork();
     if (!ret) {
