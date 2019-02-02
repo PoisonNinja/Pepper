@@ -18,6 +18,10 @@ int main(int argc, char** argv)
     // Mount a new instance of tmpfs on /dev so it'll be easier to move later
     mount("tmpfs", "/dev", "tmpfs", 0, NULL);
 
+    // Mount ptsfs
+    mkdir("/dev/pts", 0755);
+    mount("ptsfs", "/dev/pts", "ptsfs", 0, NULL);
+
     // Create the terminal device
     // Eventually this will be handled by our own udev implementation, but
     // for now init will be responsible for initializing it
