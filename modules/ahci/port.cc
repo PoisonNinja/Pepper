@@ -284,5 +284,13 @@ bool ahci_port::send_command(uint8_t command, size_t num_blocks, uint8_t write,
     while (this->port->task_file_data & (ATA_STATUS_BSY | ATA_STATUS_DRQ))
         ;
 
+    while ((this->port->sata_active | this->port->command_issue) & (1 << slot))
+        ;
+
+    if (this->port->sata_error || this->port->task_file_data & ATA_STATUS_ERR) {
+        log::printk(log::log_level::ERROR, "ahci: Error in command\n");
+        return false;
+    }
+
     return true;
 }
