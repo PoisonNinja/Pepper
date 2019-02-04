@@ -22,9 +22,12 @@ int main(int argc, char** argv)
     mkdir("/dev/pts", 0755);
     mount("ptsfs", "/dev/pts", "ptsfs", 0, NULL);
 
-    // Create the terminal device
-    // Eventually this will be handled by our own udev implementation, but
-    // for now init will be responsible for initializing it
+    /*
+     * Create the terminal device
+     *
+     * Eventually this will be handled by our own udev implementation, but now
+     * init will be responsible for initializing it instead.
+     */
     mknod("/dev/fb", 0644 | S_IFCHR, makedev(1, 0));
     mknod("/dev/keyboard", 0644 | S_IFCHR, makedev(2, 0));
     mknod("/dev/ptmx", 0644 | S_IFCHR, makedev(5, 0));
