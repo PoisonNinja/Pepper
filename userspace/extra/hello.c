@@ -5,6 +5,8 @@
 #include <sys/mount.h>
 #include <unistd.h>
 
+#include <sys/stat.h>
+
 #define WHITE "\e[77m "
 #define GRAY "\e[70m "
 #define RED "\e[41m "
@@ -37,9 +39,20 @@ int main(int argc, char** argv, char** envp)
     mkdir("/root", 0755);
     mount("/dev/sda", "/root", "ext2", 0, NULL);
 
+    int test = open("/root/lib/modules/test.ko", O_RDONLY);
+    struct stat st;
+    fstat(test, &st);
+    char* mod = malloc(st.st_size);
+    read(test, mod, st.st_size);
+    init_module(mod, st.st_size, "");
+    delete_module("test", 0);
+    free(mod);
+    close(test);
+
     int fd = open("/root/test.txt", O_RDONLY);
     uint8_t buffer[10];
-    read(fd, buffer, 10);
+    read(fd, buffer, 9);
+    buffer[9] = '\0';
     printf("%s\n", buffer);
 
     //     printf("\nHello MIT! This is all rendered using the userspace
