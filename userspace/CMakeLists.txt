@@ -31,6 +31,11 @@ if(NOT DEFINED SYSROOT)
 endif()
 message(STATUS "Sysroot: " ${SYSROOT})
 
+if(NOT DEFINED INITRD)
+    set(INITRD "${CMAKE_SOURCE_DIR}/../initrd")
+endif()
+message(STATUS "initrd: " ${INITRD})
+
 project(Quark C)
 
 # C11!
@@ -45,3 +50,4 @@ message(STATUS "CFLAGS: " ${CMAKE_C_FLAGS})
 
 add_subdirectory(core)
 add_subdirectory(extra)
+add_subdirectory(initrd)
