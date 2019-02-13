@@ -48,6 +48,11 @@ if(NOT DEFINED SYSROOT)
 endif()
 message(STATUS "Sysroot: " ${SYSROOT})
 
+if(NOT DEFINED INITRD)
+    set(INITRD "${CMAKE_SOURCE_DIR}/../initrd")
+endif()
+message(STATUS "initrd: " ${INITRD})
+
 find_program(CXX ${ARCH}-quark-g++)
 if(NOT CXX)
     message(FATAL_ERROR "Compiler not found! Run the \
