@@ -1,16 +1,16 @@
 # Directories
-toolchain/local
+/toolchain/local
 
 # Files
-pepper.iso
-disk.img
+/pepper.iso
+/disk.img
 
 # initrd
-initrd/
+/initrd/
 
 # sysroot
-sysroot/boot/initrd.tar
-sysroot/boot/*.kernel
-sysroot/sbin
-sysroot/usr
-sysroot/lib
+/sysroot/boot/initrd.tar
+/sysroot/boot/*.kernel
+/sysroot/sbin
+/sysroot/usr
+/sysroot/lib
