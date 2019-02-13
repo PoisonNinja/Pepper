@@ -5,6 +5,9 @@ toolchain/local
 pepper.iso
 disk.img
 
+# initrd
+initrd/
+
 # sysroot
 sysroot/boot/initrd.tar
 sysroot/boot/*.kernel

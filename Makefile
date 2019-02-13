@@ -18,15 +18,6 @@ QEMU_SERIAL := -serial stdio
 QEMU_MONITOR := -monitor stdio
 QEMU_REMOTE := -S
 
-# Directories to exclude from the initrd
-INITRD_EXCLUDE_LIST := \
-	boot \
-	usr/lib \
-	usr/include
-
-# Convert each item above into one string for passing to tar
-INITRD_EXCLUDE := $(addprefix "--exclude=", $(INITRD_EXCLUDE_LIST))
-
 TOOLCHAIN_PREFIX := toolchain/local/bin
 
 # grub tools are installed locally on MacOS
@@ -36,6 +27,7 @@ else
 	GRUB_MKRESCUE := grub-mkrescue
 endif
 
+INITRD := $(shell find initrd/ -print)
 HDD := $(shell find sysroot/ -path "sysroot/boot/initrd.tar" -prune -o -print)
 
 # Userfacing targets
@@ -100,11 +92,11 @@ userspace: FORCE
 	@cmake --build userspace/build --target install
 
 # Internal targets
-sysroot/boot/initrd.tar: userspace modules $(HDD)
+sysroot/boot/initrd.tar: userspace modules $(INITRD)
 	@echo
 	@echo Generating initrd...
 	@echo
-	@tar -cvf sysroot/boot/initrd.tar $(INITRD_EXCLUDE) -C sysroot .
+	@tar -cvf sysroot/boot/initrd.tar -C initrd .
 
 sysroot/boot/quark.kernel: FORCE
 	@cmake --build quark/build --target install
