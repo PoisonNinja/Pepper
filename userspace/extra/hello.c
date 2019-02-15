@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define WHITE "\e[77m "
-#define GRAY "\e[70m "
-#define RED "\e[41m "
-#define CLEAR "\e[40m"
-
 int main(int argc, char** argv, char** envp)
 {
     printf("[hello] Hello world!\n");
@@ -34,55 +29,5 @@ int main(int argc, char** argv, char** envp)
     free(buffer);
     close(sda);
 
-    int fd = open("/root/test.txt", O_RDONLY);
-    buffer = malloc(10);
-    read(fd, buffer, 9);
-    buffer[9] = '\0';
-    printf("%s\n", buffer);
-    free(buffer);
-
-    //     printf("\nHello MIT! This is all rendered using the userspace
-    //     terminal!\n");
-
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, RED, RED, WHITE, WHITE, RED,
-    //            RED, WHITE, WHITE, RED, RED, WHITE, WHITE, RED, RED, RED, RED,
-    //            RED, RED, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, RED, RED, WHITE, WHITE, RED,
-    //            RED, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, RED, RED, WHITE, WHITE, RED,
-    //            RED, WHITE, WHITE, GRAY, GRAY, WHITE, WHITE, RED, RED, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, RED, RED, WHITE, WHITE, RED,
-    //            RED, WHITE, WHITE, GRAY, GRAY, WHITE, WHITE, RED, RED, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            RED, RED, WHITE, WHITE, GRAY, GRAY, WHITE, WHITE, RED, RED,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, RED, RED, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            RED, RED, WHITE, WHITE, GRAY, GRAY, WHITE, WHITE, RED, RED,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
-    //     printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-    //     WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-    //            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
     return 123;
 }
