@@ -11,25 +11,14 @@
 
 int main(int argc, char** argv)
 {
-    int test = open("/lib/modules/test.ko", O_RDONLY);
-    struct stat st;
-    fstat(test, &st);
-    char* buffer = malloc(st.st_size);
-    read(test, buffer, st.st_size);
-    init_module(buffer, st.st_size, "");
-    delete_module("test", 0);
-    free(buffer);
-    close(test);
-
     int ret = fork();
     if (!ret) {
         char* const startup_argv[] = {
-            "/root/sbin/terminal",
-            "/root/usr/bin/hello",
+            "/sbin/terminal",
+            "/usr/bin/hello",
         };
         char* const envp[] = {};
-        execve("/root/sbin/terminal", startup_argv, envp);
+        execve("/sbin/terminal", startup_argv, envp);
     }
-
     return 0;
 }

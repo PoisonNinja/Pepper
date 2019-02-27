@@ -48,8 +48,21 @@ int main(int argc, char** argv, char** envp)
     mount("/dev/sda", "/root", "ext2", 0, NULL);
 
     printf("Moving /dev to new root filesystem...\n");
-    // mount("/dev", "/root/dev", "", MS_MOVE, NULL);
+    mount("/dev", "/root/dev", "", MS_MOVE, NULL);
+
+    /*
+     * TODO: Erase everything in the initrd
+     *       This would at least require readdir/opendir support so we can
+     *       traverse the directories.
+     *
+     *       This currently is not TOO big of a concern because the initrd
+     *       is pretty small.
+     */
+    printf("Moving the root system...\n");
+    chdir("/root");
+    // mount(".", "/", "", MS_MOVE, NULL);
+    chroot(".");
 
     // Execute the real init
-    execve("/root/sbin/init", argv, envp);
+    execve("/sbin/init", argv, envp);
 }
