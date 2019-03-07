@@ -16,8 +16,11 @@ int main(int argc, char** argv)
         char* const startup_argv[] = {
             "/sbin/terminal",
             "/usr/bin/hello",
+            0,
         };
-        char* const envp[] = {};
+        char* const envp[] = {
+            0,
+        };
         execve("/sbin/terminal", startup_argv, envp);
     }
     return 0;
