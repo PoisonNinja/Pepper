@@ -16,20 +16,6 @@ int main(int argc, char** argv, char** envp)
     // Mount a new instance of tmpfs on /dev so it'll be easier to move later
     mount("tmpfs", "/dev", "tmpfs", 0, NULL);
 
-    // Mount ptsfs
-    mkdir("/dev/pts", 0755);
-    mount("ptsfs", "/dev/pts", "ptsfs", 0, NULL);
-
-    /*
-     * Create the terminal device
-     *
-     * Eventually this will be handled by our own udev implementation, but now
-     * init will be responsible for initializing it instead.
-     */
-    mknod("/dev/fb", 0644 | S_IFCHR, makedev(1, 0));
-    mknod("/dev/keyboard", 0644 | S_IFCHR, makedev(2, 0));
-    mknod("/dev/ptmx", 0644 | S_IFCHR, makedev(5, 0));
-
     struct stat st;
     int ahci = open("/lib/modules/ahci.ko", O_RDONLY);
     fstat(ahci, &st);
