@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     if (!ret) {
         char* const startup_argv[] = {
             "/sbin/terminal",
-            "/usr/bin/hello",
+            "/usr/bin/sh",
             0,
         };
         char* const envp[] = {
