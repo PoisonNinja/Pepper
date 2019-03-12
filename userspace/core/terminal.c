@@ -65,6 +65,11 @@ int main(int argc, char* argv[])
             if (val == '\n') {
                 x = 0;
                 y++;
+            } else if (val == '\r') {
+                x = 0;
+            } else if (val == '\b') {
+                if (x)
+                    x--;
             } else if (val == '\e') {
                 read(ptm, buffer, 3);
                 val = buffer[2];
@@ -211,7 +216,7 @@ int main(int argc, char* argv[])
         close(ptm);
         close(pts);
 
-        char* const program = (argc > 1) ? argv[1] : "/usr/bin/hello";
+        char* const program = (argc > 1) ? argv[1] : "/usr/bin/sh";
 
         char* const new_argv[] = {
             program,
@@ -219,6 +224,7 @@ int main(int argc, char* argv[])
         };
 
         char* const new_envp[] = {
+            "hello=world",
             NULL,
         };
 
