@@ -6,8 +6,8 @@
 
 namespace
 {
-size_t max_prdt_slots = 32;              // 32 PRDT slots per command table
-size_t max_prdt_size  = 4 * 1024 * 1024; // 4 MiB
+size_t max_prdt_slots = 32;       // 32 PRDT slots per command table
+size_t max_prdt_size  = 4 * 1024; // 4 KiB
 
 void string_copy(char* target, char* source, size_t length)
 {
