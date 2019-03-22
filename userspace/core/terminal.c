@@ -6,6 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "../lib/kb.h"
+
 #define TIOCGPTN 0x30
 
 const int VGA_HEIGHT = 25;
@@ -67,19 +69,26 @@ int main(int argc, char* argv[])
         pfds[0].events = POLLIN;
         pfds[1].fd     = ptm;
         pfds[1].events = POLLIN;
+        struct kb_state kb_state;
         while (1) {
-            int i = poll(&pfds, 2, -1);
+            int i = poll(pfds, 2, -1);
             if (i < 0) {
                 perror("Exception occurred when polling\n");
                 exit(EXIT_FAILURE);
             }
             if (pfds[0].revents & POLLIN) {
                 // Keyboard event
+                read(kb, buffer, 1);
+                struct kb_result kb_result;
+                int ret = kb_parse(&kb_state, &kb_result, buffer[0]);
+                if (ret) {
+                    buffer[0] = kb_result.result;
+                    write(ptm, buffer, 1);
+                }
             }
             if (pfds[0].revents & POLLHUP) {
                 /*
-                 * Wow, how does a keyboard hang up, but oh well got to
-                 handle
+                 * Wow, how does a keyboard hang up, but oh well got to handle
                  * it anyways
                  */
                 perror("Keyboard hung up somehow\n");
