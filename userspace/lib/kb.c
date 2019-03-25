@@ -173,12 +173,13 @@ unsigned int us_map_shift[128] = {
 int kb_parse(struct kb_state* state, struct kb_result* result,
              unsigned char scancode)
 {
+    int is_release = 0;
     if (!state || !result) {
         return 0;
     }
     if (scancode & 0x80) {
-        // Release, screw this
-        return 0;
+        is_release = 1;
+        scancode &= ~0x80;
     }
     switch (scancode) {
         case 0xE0:
@@ -191,12 +192,14 @@ int kb_parse(struct kb_state* state, struct kb_result* result,
             state->shift = !state->shift;
             break;
         default:
-            if (state->shift) {
-                result->result = us_map_shift[scancode];
-            } else {
-                result->result = us_map[scancode];
+            if (!is_release) {
+                if (state->shift) {
+                    result->result = us_map_shift[scancode];
+                } else {
+                    result->result = us_map[scancode];
+                }
+                return 1;
             }
-            return 1;
     }
     return 0;
 }
