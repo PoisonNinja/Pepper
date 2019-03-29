@@ -1,5 +1,6 @@
 # Directories
 /toolchain/local
+/.vscode
 
 # Files
 /pepper.iso
