@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PREFIX="$DIR/local"
 PATH="$PREFIX/bin:$PATH"
-SYSROOT=$(cd $DIR/../sysroot; pwd)
+SYSROOT=$(cd "$DIR"/../sysroot || exit; pwd)
 
 TARGET_ARCH="${TARGET_ARCH:-x86_64}"
 TARGET="$TARGET_ARCH-quark"
@@ -53,9 +53,9 @@ function extract() {
 
 function patchdir() {
     echo "Patching $1..."
-    pushd $1 > /dev/null
-    patch -p1 < $2
-    popd > /dev/null
+    pushd "$1" > /dev/null || exit
+    patch -p1 < "$2"
+    popd > /dev/null || exit
 }
 
 function bail() {
@@ -65,7 +65,7 @@ function bail() {
 }
 
 function realpath() {
-    echo "$(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")"
+    echo "$(cd "$(dirname "$1")" || exit; pwd -P)/$(basename "$1")"
 }
 
 case $(sed --help 2>&1) in
@@ -85,13 +85,13 @@ case $i in
         TARGET="$TARGET_ARCH-quark"
         ;;
     --local-gcc=*)
-        LOCAL_GCC="$(realpath ${i#*=})"
+        LOCAL_GCC="$(realpath "${i#*=}")"
         ;;
     --local-binutils=*)
-        LOCAL_BINUTILS="$(realpath ${i#*=})"
+        LOCAL_BINUTILS="$(realpath "${i#*=}")"
         ;;
     --local-newlib=*)
-        LOCAL_NEWLIB="$(realpath ${i#*=})"
+        LOCAL_NEWLIB="$(realpath "${i#*=}")"
         ;;
     --skip-dependencies)
         SKIP_DEPS=true
@@ -190,7 +190,7 @@ then
             fi
         elif [[ "$HOST_OS" == "Darwin" ]]
         then
-            if [ ! -f "$(which brew)" ]
+            if [ ! -f "$(command -v brew)" ]
             then
                 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             fi
@@ -219,7 +219,7 @@ else
     echo "Skipping dependencies installation"
 fi
 
-pushd "$TMPDIR" > /dev/null
+pushd "$TMPDIR" > /dev/null || exit
 mkdir -p "$DIR/local"
 mkdir -p "$SYSROOT/usr/include"
 
@@ -230,7 +230,7 @@ echo
 
 if [[ $SKIP_BINUTILS == false ]]
 then
-    if [[ ! -z "$LOCAL_BINUTILS" ]]
+    if [[ -n "$LOCAL_BINUTILS" ]]
     then
         if [[ ! -f "$LOCAL_BINUTILS" ]]
         then
@@ -242,13 +242,13 @@ then
         download $BINUTILSURL binutils.tar.xz || bail
     fi
     extract binutils.tar.xz || bail
-    patchdir $BINUTILSVER $DIR/$BINUTILSVER.patch
+    patchdir $BINUTILSVER "$DIR"/$BINUTILSVER.patch
     mkdir build-binutils
-    pushd build-binutils > /dev/null
-    ../$BINUTILSVER/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
+    pushd build-binutils > /dev/null || exit
+    ../$BINUTILSVER/configure --target="$TARGET" --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
     make || bail
     make install || bail
-    popd > /dev/null
+    popd > /dev/null || exit
 else
     echo "Skipping binutils build"
 fi
@@ -256,7 +256,7 @@ fi
 
 if [[ $SKIP_GCC == false ]]
 then
-    if [[ ! -z "$LOCAL_GCC" ]]
+    if [[ -n "$LOCAL_GCC" ]]
     then
         if [[ ! -f "$LOCAL_GCC" ]]
         then
@@ -268,13 +268,13 @@ then
         download $GCCURL gcc.tar.xz || bail
     fi
     extract gcc.tar.xz || bail
-    patchdir $GCCVER $DIR/$GCCVER.patch
+    patchdir $GCCVER "$DIR"/$GCCVER.patch
     mkdir build-gcc
-    pushd build-gcc > /dev/null
-    ../$GCCVER/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" --enable-plugin || bail
+    pushd build-gcc > /dev/null || exit
+    ../$GCCVER/configure --target="$TARGET" --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" --enable-plugin || bail
     make all-gcc || bail
     make install-gcc || bail
-    popd > /dev/null
+    popd > /dev/null || exit
 else
     echo "Skipping GCC build"
 fi
@@ -283,7 +283,7 @@ export PATH="$PREFIX/bin:$PATH"
 
 if [[ $SKIP_NEWLIB == false ]]
 then
-    if [[ ! -z "$LOCAL_NEWLIB" ]]
+    if [[ -n "$LOCAL_NEWLIB" ]]
     then
         if [[ ! -d "$LOCAL_NEWLIB" ]]
         then
@@ -294,24 +294,24 @@ then
     else
         git clone --depth=1 "$NEWLIBURL"
     fi
-    cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/* newlib/newlib/libc/sys/quark
-    cp newlib/newlib/libc/sys/quark/$TARGET_ARCH/sys/* newlib/newlib/libc/sys/quark/sys/
+    cp newlib/newlib/libc/sys/quark/"$TARGET_ARCH"/* newlib/newlib/libc/sys/quark
+    cp newlib/newlib/libc/sys/quark/"$TARGET_ARCH"/sys/* newlib/newlib/libc/sys/quark/sys/
     mkdir build-newlib
-    pushd build-newlib > /dev/null
+    pushd build-newlib > /dev/null || exit
     ../newlib/configure --prefix="/usr" --target="$TARGET" || bail
     make all || bail
     make DESTDIR="$SYSROOT" install || bail
     # Work around a newlib bug
-    cp -R $SYSROOT/usr/$TARGET/* $SYSROOT/usr/
-    rm -r $SYSROOT/usr/$TARGET
-    popd > /dev/null
+    cp -R "$SYSROOT"/usr/"$TARGET"/* "$SYSROOT"/usr/
+    rm -r "${SYSROOT:?}"/usr/"$TARGET"
+    popd > /dev/null || exit
 else
     echo "Skipping newlib build"
 fi
 
 if [[ $SKIP_GCC == false ]]
 then
-    pushd build-gcc > /dev/null
+    pushd build-gcc > /dev/null || exit
     # x86_64 needs some special treatment
     if [[ "$TARGET_ARCH" == "x86_64" ]]
     then
@@ -326,7 +326,7 @@ then
         # mcmodel code
         make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || true
         # Patch the Makefile to remove PIC (https://wiki.osdev.org/Building_libgcc_for_mcmodel%3Dkernel)
-        sed_i 's/PICFLAG/DISABLED_PICFLAG/g' $TARGET/libgcc/Makefile || bail
+        sed_i 's/PICFLAG/DISABLED_PICFLAG/g' "$TARGET"/libgcc/Makefile || bail
         # Continue the build
         make all-target-libgcc CFLAGS_FOR_TARGET="$LIBGCC_CFLAGS" || bail
     else
@@ -335,12 +335,12 @@ then
     make install-target-libgcc || bail
     make all-target-libstdc++-v3 || bail
     make install-target-libstdc++-v3 || bail
-    popd > /dev/null
+    popd > /dev/null || exit
 else
     echo "Skipping libstdc++v3 build"
 fi
 
-popd > /dev/null
+popd > /dev/null || exit
 echo
 echo "The toolchain has been installed successfully"
 echo "Don't forget to activate the toolchain!"
