@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     int pts_no = -1;
     ioctl(ptm, TIOCGPTN, &pts_no);
     char pts_path[128];
-    sprintf(pts_path, "/dev/pts/pts%d", pts_no);
+    sprintf(pts_path, "/dev/pts/%d", pts_no);
     int pts = open(pts_path, O_RDWR);
 
     int ret = fork();
