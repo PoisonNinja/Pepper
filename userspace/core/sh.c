@@ -4,13 +4,9 @@ int main(int argc, char* argv[])
 {
     while (1) {
         printf("sh> ");
+        char buffer[1024];
         while (1) {
-            char c = fgetc(stdin);
-            if (c == '\n') {
-
-            } else {
-                printf("%c", c);
-            }
+            fgets(buffer, 1024, stdin);
         }
     }
 }
