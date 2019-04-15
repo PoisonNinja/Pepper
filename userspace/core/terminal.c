@@ -83,6 +83,10 @@ int main(int argc, char* argv[])
                 int ret = kb_parse(&kb_state, &kb_result, buffer[0]);
                 if (ret) {
                     buffer[0] = kb_result.result;
+                    if (buffer[0] == '\b') {
+                        // Translate backspace into kill character
+                        buffer[0] = 0x7F;
+                    }
                     write(ptm, buffer, 1);
                 }
             }
