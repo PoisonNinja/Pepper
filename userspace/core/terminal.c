@@ -40,6 +40,19 @@ void update_cursor(int col, int row)
     outb(0x3D5, (unsigned char)((position >> 8) & 0xFF));
 }
 
+void enable_cursor()
+{
+    outb(0x3D4, 0x09); // set maximum scan line register to 15
+    outb(0x3D5, 0x0F);
+
+    outb(0x3D4, 0x0B); // set the cursor end line to 15
+    outb(0x3D5, 0x0F);
+
+    outb(0x3D4,
+         0x0A); // set the cursor start line to 14 and enable cursor visibility
+    outb(0x3D5, 0x0E);
+}
+
 int main(int argc, char* argv[])
 {
     int kb = open("/dev/keyboard", O_RDONLY); // stdin
@@ -63,6 +76,7 @@ int main(int argc, char* argv[])
 
     int ret = fork();
     if (ret) {
+        enable_cursor();
         char buffer[128];
         struct pollfd pfds[2];
         pfds[0].fd     = kb;
