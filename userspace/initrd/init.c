@@ -13,6 +13,9 @@ extern int delete_module(const char* name, int flags);
 
 int main(int argc, char** argv, char** envp)
 {
+    mkdir("/dev", 0666);
+    mkdir("/tmp", 0666);
+
     // Mount a new instance of tmpfs on /dev so it'll be easier to move later
     mount("tmpfs", "/dev", "tmpfs", 0, NULL);
 
