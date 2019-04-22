@@ -4,16 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include "../lib/kb.h"
 
-#define TIOCGPTN 0x30
-
 const int VGA_HEIGHT = 25;
 const int VGA_WIDTH  = 80;
-
-extern int ioctl(int fd, unsigned long request, void* argp);
 
 uint16_t internal_buffer[80 * 25];
 
@@ -48,8 +45,7 @@ void enable_cursor()
     outb(0x3D4, 0x0B); // set the cursor end line to 15
     outb(0x3D5, 0x0F);
 
-    outb(0x3D4,
-         0x0A); // set the cursor start line to 14 and enable cursor visibility
+    outb(0x3D4, 0x0A);
     outb(0x3D5, 0x0E);
 }
 
