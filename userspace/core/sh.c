@@ -1,5 +1,7 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int main(int argc, char* argv[])
 {
@@ -7,8 +9,23 @@ int main(int argc, char* argv[])
     char* buffer       = malloc(buffer_size);
     while (1) {
         printf("$ ");
-        getline(&buffer, &buffer_size, stdin);
-        printf("%s\n", buffer);
+        size_t ret = getline(&buffer, &buffer_size, stdin);
+        if (ret == 1 && buffer[0] == '\n')
+            continue;
+        buffer[ret - 1] = '\0';
+        int fd          = open(buffer, O_RDONLY);
+        if (fd < 0) {
+            printf("File not found\n");
+        } else {
+            close(fd);
+            if (!fork()) {
+                const char* envp[] = {
+                    "test=world",
+                    0,
+                };
+                execve(buffer, argv, envp);
+            }
+        }
     }
     free(buffer);
 }
