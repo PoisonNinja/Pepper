@@ -37,5 +37,7 @@ int main(int argc, char** argv)
         };
         execve("/sbin/terminal", startup_argv, envp);
     }
-    return 0;
+    for (;;) {
+        // TODO: Are we supposed to call waitpid() here to reap?
+    }
 }
