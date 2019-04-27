@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 int main(int argc, char* argv[])
@@ -18,7 +19,10 @@ int main(int argc, char* argv[])
             printf("File not found\n");
         } else {
             close(fd);
-            if (!fork()) {
+            int pid;
+            if (pid = fork()) {
+                waitpid(pid, NULL, 0);
+            } else {
                 const char* envp[] = {
                     "test=world",
                     0,
