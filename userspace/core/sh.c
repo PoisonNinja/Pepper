@@ -20,14 +20,14 @@ int main(int argc, char* argv[])
         } else {
             close(fd);
             int pid;
-            if (pid = fork()) {
+            if ((pid = fork())) {
                 waitpid(pid, NULL, 0);
             } else {
-                const char* envp[] = {
-                    "test=world",
+                char* const child_argv[] = {
+                    buffer,
                     0,
                 };
-                execve(buffer, argv, envp);
+                execv(buffer, child_argv);
             }
         }
     }
