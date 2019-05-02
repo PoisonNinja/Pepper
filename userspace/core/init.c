@@ -6,6 +6,7 @@
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+#include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -37,7 +38,8 @@ int main(int argc, char** argv)
         };
         execve("/sbin/terminal", startup_argv, envp);
     }
+    int status = 0;
     for (;;) {
-        // TODO: Are we supposed to call waitpid() here to reap?
+        wait(&status);
     }
 }
