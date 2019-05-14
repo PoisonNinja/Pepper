@@ -4,6 +4,6 @@
 int main(int argc, char** argv, char** envp)
 {
     printf("[signal] Dispatching SIGALRM to init...\n");
-    kill(1, SIGALRM);
+    kill(1, SIGKILL);
     return 0;
 }
