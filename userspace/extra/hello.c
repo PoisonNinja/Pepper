@@ -21,14 +21,5 @@ int main(int argc, char** argv, char** envp)
         printf("\e[3%cmTest \e[9%cmTest\n", a, a);
     }
 
-    uint8_t* buffer = malloc(1024);
-    int sda         = open("/dev/sda", O_RDWR);
-    lseek(sda, 1024, SEEK_SET);
-    read(sda, buffer, 1024);
-    uint32_t* blocks = (uint32_t*)buffer;
-    printf("%08X %08X %08X %08X\n", blocks[0], blocks[1], blocks[2], blocks[3]);
-    free(buffer);
-    close(sda);
-
     return 123;
 }
