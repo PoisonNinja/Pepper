@@ -9,7 +9,7 @@ OS := $(shell uname -s)
 # ARCH ?= x86_64
 QEMU := qemu-system-$(ARCH)
 
-QEMU_ARGS :=-m 64 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
+QEMU_ARGS :=-m 64 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem,+pdpe1gb
 QEMU_AHCI := -drive file=disk.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
 QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_DEBUG := -s
