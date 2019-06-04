@@ -10,7 +10,7 @@ Pepper, and by extension Quark, uses a custom GCC/Binutils based toolchain with 
 
 Pepper also utilizes the newlib C library. It is heavily patched with Pepper specific code and can be found in a [separate repository](https://github.com/PoisonNinja/newlib).
 
-Regardless of whether you are on MacOS/Ubuntu or some other system, the build script will handle building and installing the toolchain and C library for you/
+Regardless of whether you are on MacOS/Ubuntu or some other system, the build script will handle building and installing the toolchain and C library for you.
 
 ## Prerequisites
 As mentioned before, all the necessary prerequisites are installed by the build script if you are on MacOS or an Ubuntu-derivative.
@@ -20,6 +20,7 @@ On other platforms, you will need to install the prerequisites yourself.
 Be aware that on MacOS, the script will install Homebrew. If you do not want that, you will need to install the required packages yourself.
 
 Currently, the prerequisites are:
+
 | Name | Description|
 |------|------------|
 |build-essential | Includes GCC and binutils for the host. Needed to build the cross-compiler |
@@ -37,6 +38,7 @@ Currently, the prerequisites are:
 | curl | Used to download the prerequisites |
 
 Some additional packages that are nice to have and are automatically installed by the build script are:
+
 | Name | Description|
 |------|------------|
 | clang-format | Format the code in a standard way. Easy way for me to enforce a coding style |
