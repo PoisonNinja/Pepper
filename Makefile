@@ -11,7 +11,7 @@ QEMU := qemu-system-$(ARCH)
 
 QEMU_ARGS :=-m 64 -rtc base=localtime -cdrom pepper.iso -no-reboot -no-shutdown -cpu Nehalem
 QEMU_AHCI := -drive file=disk.img,if=none,id=hdd,format=raw -device ich9-ahci,id=ahci -device ide-drive,drive=hdd,bus=ahci.0
-QEMU_ACCEL := -M accel=kvm:hax:tcg
+QEMU_ACCEL := -M accel=kvm:tcg
 QEMU_DEBUG := -s
 QEMU_BASE := $(QEMU_ARGS) $(QEMU_AHCI) $(QEMU_ACCEL) $(QEMU_DEBUG)
 QEMU_SERIAL := -serial stdio
