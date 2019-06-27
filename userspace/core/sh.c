@@ -4,13 +4,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+extern ssize_t __getline(char **lineptr, size_t *n, FILE *stream);
+
 int main(int argc, char* argv[])
 {
     size_t buffer_size = 1024;
     char* buffer       = malloc(buffer_size);
     while (1) {
         printf("$ ");
-        size_t ret = getline(&buffer, &buffer_size, stdin);
+        size_t ret = __getline(&buffer, &buffer_size, stdin);
         if (ret == 1 && buffer[0] == '\n')
             continue;
         buffer[ret - 1] = '\0';
