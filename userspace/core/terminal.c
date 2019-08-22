@@ -14,41 +14,6 @@ const int VGA_WIDTH  = 80;
 
 uint16_t internal_buffer[80 * 25];
 
-static inline void outb(uint16_t port, uint8_t v)
-{
-    asm volatile("outb %0,%1" : : "a"(v), "dN"(port));
-}
-static inline uint8_t inb(uint16_t port)
-{
-    uint8_t v;
-    asm volatile("inb %1,%0" : "=a"(v) : "dN"(port));
-    return v;
-}
-
-void update_cursor(int col, int row)
-{
-    uint16_t position = (row * VGA_WIDTH) + col;
-
-    // cursor LOW port to vga INDEX register
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, (unsigned char)(position & 0xFF));
-    // cursor HIGH port to vga INDEX register
-    outb(0x3D4, 0x0E);
-    outb(0x3D5, (unsigned char)((position >> 8) & 0xFF));
-}
-
-void enable_cursor()
-{
-    outb(0x3D4, 0x09); // set maximum scan line register to 15
-    outb(0x3D5, 0x0F);
-
-    outb(0x3D4, 0x0B); // set the cursor end line to 15
-    outb(0x3D5, 0x0F);
-
-    outb(0x3D4, 0x0A);
-    outb(0x3D5, 0x0E);
-}
-
 int main(int argc, char* argv[])
 {
     int kb = open("/dev/keyboard", O_RDONLY); // stdin
@@ -72,7 +37,6 @@ int main(int argc, char* argv[])
 
     int ret = fork();
     if (ret) {
-        enable_cursor();
         char buffer[128];
         struct pollfd pfds[2];
         pfds[0].fd     = kb;
@@ -256,7 +220,6 @@ int main(int argc, char* argv[])
                 }
                 lseek(1, 0, SEEK_SET);
                 write(1, (uint8_t*)internal_buffer, sizeof(internal_buffer));
-                update_cursor(x, y);
             }
             if (pfds[1].revents & POLLHUP) {
                 perror("Program exited\n");
