@@ -1,8 +1,6 @@
 #include <kernel.h>
 #include <kernel/init.h>
 #include <kernel/module.h>
-#include <lib/printf.h>
-#include <lib/string.h>
 
 class Test
 {
