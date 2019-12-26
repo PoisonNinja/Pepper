@@ -54,7 +54,6 @@ help:
 	@echo "By default, Pepper assumes x86_64. To change architecture, edit the ARCH variable in config.mk"
 	@echo "Supported architectures:"
 	@echo " * x86_64"
-	@echo " * x86"
 	@echo "Current architecture: $(ARCH)"
 	@echo
 	@echo "all (default):   Build kernel and pepper.iso"
