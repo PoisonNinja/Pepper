@@ -54,13 +54,13 @@ ahci_port::ahci_port(ahci_controller* c, volatile struct hba_port* port)
     // We only need to allocate space for however many command slots there are
     size_t clb_size =
         sizeof(struct hba_command_header) * this->controller->get_ncs();
-    bool success;
-    libcxx::tie(success, this->clb) = memory::dma::allocate(clb_size);
-    if (!success) {
+    auto allocation = memory::dma::allocate(clb_size);
+    if (!allocation) {
         log::printk(log::log_level::ERROR,
                     "ahci: Failed to allocate CLB memory, aborting\n");
         return;
     }
+    this->clb = *allocation;
     log::printk(log::log_level::INFO, "ahci: CLB at %p, size 0x%zX\n",
                 this->clb.physical_base, this->clb.size);
     libcxx::memset(reinterpret_cast<void*>(this->clb.virtual_base), 0,
@@ -73,13 +73,14 @@ ahci_port::ahci_port(ahci_controller* c, volatile struct hba_port* port)
     this->port->command_list_base_high = 0;
 #endif
 
-    size_t fb_size                 = sizeof(struct hba_received_fis);
-    libcxx::tie(success, this->fb) = memory::dma::allocate(fb_size);
-    if (!success) {
+    size_t fb_size = sizeof(struct hba_received_fis);
+    allocation     = memory::dma::allocate(fb_size);
+    if (!allocation) {
         log::printk(log::log_level::ERROR,
                     "ahci: Failed to allocate FIS memory, aborting\n");
         return;
     }
+    this->fb = *allocation;
     log::printk(log::log_level::INFO, "ahci: FIS at %p, size 0x%zX\n",
                 this->fb.physical_base, this->fb.size);
     libcxx::memset(reinterpret_cast<void*>(this->fb.virtual_base), 0, fb_size);
@@ -98,14 +99,14 @@ ahci_port::ahci_port(ahci_controller* c, volatile struct hba_port* port)
     log::printk(log::log_level::INFO, "ahci: Command table size: 0x%zX\n",
                 command_table_size);
     for (size_t i = 0; i < this->controller->get_ncs(); i++, header++) {
-        libcxx::tie(success, this->command_tables[i]) =
-            memory::dma::allocate(command_table_size);
-        if (!success) {
+        allocation = memory::dma::allocate(command_table_size);
+        if (!allocation) {
             log::printk(
                 log::log_level::ERROR,
                 "ahci: Failed to allocate command table memory, aborting\n");
             return;
         }
+        this->command_tables[i] = *allocation;
         libcxx::memset((void*)this->command_tables[i].virtual_base, 0,
                        command_table_size);
         header->command_table_base_low =

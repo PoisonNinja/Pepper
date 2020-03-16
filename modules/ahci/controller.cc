@@ -24,13 +24,12 @@ void ahci_controller::init()
     log::printk(log::log_level::INFO, "ahci: Raw ABAR at %p with size 0x%zX\n",
                 raw_abar.addr, raw_abar.size);
     auto mapped = pci::map(raw_abar.addr, raw_abar.size);
-    if (!mapped.first) {
+    if (!mapped) {
         log::printk(log::log_level::ERROR, "ahci: Failed to map ABAR\n");
         return;
     }
-    log::printk(log::log_level::INFO, "ahci: Mapped ABAR to %p\n",
-                mapped.second);
-    this->hba = reinterpret_cast<struct hba_memory*>(mapped.second);
+    log::printk(log::log_level::INFO, "ahci: Mapped ABAR to %p\n", *mapped);
+    this->hba = reinterpret_cast<struct hba_memory*>(*mapped);
 
     // TODO: Support MSI
     uint8_t irq = this->device->read_config_8(pci::pci_interrupt_line);
