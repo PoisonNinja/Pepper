@@ -23,20 +23,24 @@ int main(int argc, char** argv)
      * init will be responsible for initializing it instead.
      */
     mknod("/dev/fb", 0644 | S_IFCHR, makedev(1, 0));
-    mknod("/dev/keyboard", 0644 | S_IFCHR, makedev(2, 0));
     mknod("/dev/ptmx", 0644 | S_IFCHR, makedev(5, 0));
+    mknod("/dev/tty1", 0644 | S_IFCHR, makedev(4, 1));
+    mknod("/dev/tty2", 0644 | S_IFCHR, makedev(4, 2));
+
+    open("/dev/tty2", O_RDONLY); // stdin
+    open("/dev/tty2", O_WRONLY); // stdout
+    open("/dev/tty2", O_WRONLY); // stderr
 
     int ret = fork();
     if (!ret) {
         char* const startup_argv[] = {
-            "/sbin/terminal",
             "/usr/bin/sh",
             0,
         };
         char* const envp[] = {
             0,
         };
-        execve("/sbin/terminal", startup_argv, envp);
+        execve("/usr/bin/sh", startup_argv, envp);
     }
     int status = 0;
     for (;;) {
