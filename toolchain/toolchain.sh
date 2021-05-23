@@ -197,8 +197,6 @@ then
             brew install mpfr gmp libmpc nasm genext2fs qemu xorriso cmake ninja
             brew install clang-format
             brew install automake
-            brew install grep --with-default-names
-            brew install findutils --with-default-names
         else
             error
             echo "Your OS is currently not supported."
