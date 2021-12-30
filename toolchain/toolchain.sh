@@ -18,6 +18,10 @@ LOCAL_GCC=""
 LOCAL_BINUTILS=""
 LOCAL_NEWLIB=""
 
+BINUTILS_CONFIG_FLAGS="--target=$TARGET --prefix=$PREFIX --with-sysroot=$SYSROOT --disable-nls --disable-werror"
+GCC_CONFIG_FLAGS="--target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++ --with-sysroot=$SYSROOT --enable-plugin"
+NEWLIB_CONFIG_FLAGS="--prefix=/usr --target=$TARGET"
+
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 
 SKIP_DEPS=false
@@ -123,91 +127,87 @@ esac
 shift
 done
 
+HOST_OS="Unknown"
+HOST_ARCH="Unknown"
+
+if [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    HOST_OS=$DISTRIB_ID
+elif [ -f /etc/debian_version ]; then
+    HOST_OS=Debian
+elif [ -f /etc/redhat-release ]; then
+    HOST_OS="Red Hat"
+else
+    HOST_OS=$(uname -s)
+fi
+
+case $(uname -m) in
+x86_64)
+    HOST_ARCH=x64
+    ;;
+i*86)
+    HOST_ARCH=x86
+    ;;
+arm64)
+    HOST_ARCH=arm64
+    ;;
+*)
+    ;;
+esac
+
 echo "Target information:"
 echo "Architecture:" "$TARGET_ARCH"
 echo "Target:" "$TARGET"
 echo
 
+echo "Host information:"
+echo "OS:" "$HOST_OS"
+echo "Architecture:" "$HOST_ARCH"
+echo
+
+if [[ "$HOST_OS" == "Darwin" && "$HOST_ARCH" == "arm64" ]]
+then
+    echo "M1 detected, adjusting GCC libs path to /opt/homebrew"
+    echo
+    GCC_CONFIG_FLAGS+=" --with-gmp=/opt/homebrew --with-mpfr=/opt/homebrew --with-mpc=/opt/homebrew"
+fi
+
 if [[ $SKIP_DEPS == false ]]
 then
-
-    HOST_OS="Unknown"
-    HOST_ARCH="Unknown"
-
-    if [ -f /etc/lsb-release ]; then
-        . /etc/lsb-release
-        HOST_OS=$DISTRIB_ID
-    elif [ -f /etc/debian_version ]; then
-        HOST_OS=Debian
-    elif [ -f /etc/redhat-release ]; then
-        HOST_OS="Red Hat"
-    else
-        HOST_OS=$(uname -s)
-    fi
-
-    case $(uname -m) in
-    x86_64)
-        HOST_ARCH=x64
-        ;;
-    i*86)
-        HOST_ARCH=x86
-        ;;
-    *)
-        ;;
-    esac
-
-    echo "Host information:"
-    echo "OS:" "$HOST_OS"
-    echo "Architecture:" "$HOST_ARCH"
-
-    input=""
-
-    echo -n "Is the information correct? (y/n) "
-    read -r input
-
-    if [[ "$input" == "y" ]]
+    if [[ "$HOST_OS" == "Ubuntu" ]] || [[ "$HOST_OS" == "Debian" ]]
     then
-        if [[ "$HOST_OS" == "Ubuntu" ]] || [[ "$HOST_OS" == "Debian" ]]
+        . /etc/lsb-release
+        sudo apt update
+        sudo apt -fy install build-essential clang-format cmake curl genext2fs grub-common libmpfr-dev libmpc-dev libgmp3-dev nasm ninja-build qemu texinfo xorriso
+        # EFI installations are missing BIOS boot files, so using
+        # grub-mkrescue would make unbootable disks
+        if [[ -d "/sys/firmware/efi" ]]
         then
-            . /etc/lsb-release
-            sudo apt update
-            sudo apt -fy install build-essential clang-format cmake curl genext2fs grub-common libmpfr-dev libmpc-dev libgmp3-dev nasm ninja-build qemu texinfo xorriso
-            # EFI installations are missing BIOS boot files, so using
-            # grub-mkrescue would make unbootable disks
-            if [[ -d "/sys/firmware/efi" ]]
-            then
-                echo ""
-                echo "EFI system detected. Installing grub-pc-bin..."
-                echo ""
-                sudo apt install grub-pc-bin
-            # WSL is also missing BIOS boot files
-            elif grep -q Microsoft /proc/version
-            then
-                echo ""
-                echo "Windows Subsystem for Linux detected. Installing grub-pc-bin..."
-                echo ""
-                sudo apt install grub-pc-bin
-            fi
-        elif [[ "$HOST_OS" == "Darwin" ]]
+            echo ""
+            echo "EFI system detected. Installing grub-pc-bin..."
+            echo ""
+            sudo apt install grub-pc-bin
+        # WSL is also missing BIOS boot files
+        elif grep -q Microsoft /proc/version
         then
-            if [ ! -f "$(command -v brew)" ]
-            then
-                /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-            fi
-            brew install mpfr gmp libmpc nasm genext2fs qemu xorriso cmake ninja
-            brew install clang-format
-            brew install automake
-        else
-            error
-            echo "Your OS is currently not supported."
-            echo
-            echo "Please install the following packages: $PACKAGES"
-            echo
-            echo "Press enter when you have installed those packages to continue..."
-            read -r
+            echo ""
+            echo "Windows Subsystem for Linux detected. Installing grub-pc-bin..."
+            echo ""
+            sudo apt install grub-pc-bin
         fi
+    elif [[ "$HOST_OS" == "Darwin" ]]
+    then
+        if [ ! -f "$(command -v brew)" ]
+        then
+            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        fi
+        brew install mpfr gmp libmpc nasm genext2fs qemu xorriso cmake ninja
+        brew install clang-format
+        brew install automake
     else
         error
+        echo "Your OS is currently not supported."
+        echo
         echo "Please install the following packages: $PACKAGES"
         echo
         echo "Press enter when you have installed those packages to continue..."
@@ -243,7 +243,7 @@ then
     patchdir $BINUTILSVER "$DIR"/$BINUTILSVER.patch
     mkdir build-binutils
     pushd build-binutils > /dev/null || exit
-    ../$BINUTILSVER/configure --target="$TARGET" --prefix="$PREFIX" --with-sysroot="$SYSROOT" --disable-nls --disable-werror || bail
+    ../$BINUTILSVER/configure $BINUTILS_CONFIG_FLAGS || bail
     make || bail
     make install || bail
     popd > /dev/null || exit
@@ -269,7 +269,7 @@ then
     patchdir $GCCVER "$DIR"/$GCCVER.patch
     mkdir build-gcc
     pushd build-gcc > /dev/null || exit
-    ../$GCCVER/configure --target="$TARGET" --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --with-sysroot="$SYSROOT" --enable-plugin || bail
+    ../$GCCVER/configure $GCC_CONFIG_FLAGS || bail
     make all-gcc || bail
     make install-gcc || bail
     popd > /dev/null || exit
@@ -296,7 +296,7 @@ then
     cp newlib/newlib/libc/sys/quark/"$TARGET_ARCH"/sys/* newlib/newlib/libc/sys/quark/sys/
     mkdir build-newlib
     pushd build-newlib > /dev/null || exit
-    ../newlib/configure --prefix="/usr" --target="$TARGET" || bail
+    ../newlib/configure $NEWLIB_CONFIG_FLAGS || bail
     make all || bail
     make DESTDIR="$SYSROOT" install || bail
     # Work around a newlib bug
